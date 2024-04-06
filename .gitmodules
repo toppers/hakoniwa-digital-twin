@@ -1,0 +1,3 @@
+[submodule "third-party/hakoniwa-ros2pdu"]
+	path = third-party/hakoniwa-ros2pdu
+	url = https://github.com/toppers/hakoniwa-ros2pdu.git
