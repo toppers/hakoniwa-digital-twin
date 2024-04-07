@@ -127,7 +127,7 @@ class LIDARSubscriber(Node):
             '/scan',
             self.listener_callback,
             qos_profile)
-        self.estimater = InfraSensorPositionEstimater()
+        self.estimater = InfraSensorPositionEstimater(self.publisher_)
         self.subscription  # prevent unused variable warning
  
     def filter_ranges(self, msg):
