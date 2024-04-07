@@ -42,6 +42,29 @@ class InfraSensorPositionEstimater:
         return y, x, True
 
     
+    def analyze_circle(self, degrees, values):
+        pos_x = []
+        pos_y = []
+        y = 0
+        x = 0
+        R = 0.105
+        for degree, value in zip(degrees, values):
+            radian_degree = radians(self.base_degree - degree)
+            pos_y.append(value * cos(radian_degree))
+            pos_x.append(value * sin(radian_degree))
+        x_data = np.array(pos_x)
+        y_data = np.array(pos_y)
+        A = np.vstack([x_data, y_data, np.ones(len(x_data))]).T
+        B = -x_data**2 - y_data**2 -R**2
+        params, residuals, rank, s = np.linalg.lstsq(A, B, rcond=None)
+        D, E, F = params
+        h = -D / 2
+        k = -E / 2
+        #r = np.sqrt(h**2 + k**2 - F)
+
+        print(f"Center: ({h}, {k}), Radius: {R}")
+        return k, h, True
+
     def write_pos(self, zero=False):
         x = 0
         y = 0
