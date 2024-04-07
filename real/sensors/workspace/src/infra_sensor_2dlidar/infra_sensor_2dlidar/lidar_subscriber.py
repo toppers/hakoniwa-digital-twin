@@ -3,7 +3,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from rclpy.qos import QoSProfile
 from rclpy.qos import ReliabilityPolicy, DurabilityPolicy
-import infra_sensor_position_estimator
+from infra_sensor_position_estimator import InfraSensorPositionEstimater
 
 class LIDARSubscriber(Node):
     def __init__(self):
