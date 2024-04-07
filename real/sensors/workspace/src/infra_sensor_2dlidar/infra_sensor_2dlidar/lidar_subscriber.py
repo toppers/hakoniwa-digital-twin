@@ -3,6 +3,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from rclpy.qos import QoSProfile
 from rclpy.qos import ReliabilityPolicy, DurabilityPolicy
+import infra_sensor_position_estimator
 
 class LIDARSubscriber(Node):
     def __init__(self):
@@ -15,23 +16,26 @@ class LIDARSubscriber(Node):
             '/scan',
             self.listener_callback,
             qos_profile)
+        self.filter_range = 0.5
+        self.estimater = InfraSensorPositionEstimater()
         self.subscription  # prevent unused variable warning
  
-
-    def listener_callback(self, msg):
+    def filter_ranges(self, msg):
+        degrees = []
+        values = []
         i = 0
-        min = 10.0
-        min_i = 0
         while i < 360:
             if msg.intensities[i] > 0.0 and msg.ranges[i] > 0.0:
-                if msg.ranges[i] < 0.5:
-                    print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
-                    if min > msg.ranges[i]:
-                        min = msg.ranges[i]
-                        min_i = i
+                if msg.ranges[i] < self.filter_range:
+                    degrees.append(i)
+                    values.append(msg.ranges[i])
+                    #print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
             i = i + 1
-            print(f"MIN  {min_i} {min}")
-        #self.get_logger().info(f'Received scan: [angle_min: {msg.angle_min:.2f}, angle_max: {msg.angle_max:.2f}, range_min: {msg.range_min:.2f}, range_max: {msg.range_max:.2f}, first_ten_ranges: [{ranges_str}]')
+        return degrees, values
+
+    def listener_callback(self, msg):
+        degrees, values = self.filter_ranges(msg)
+        self.estimater.run(degrees, values)
 
 
 def main(args=None):

@@ -6,15 +6,15 @@ import numpy as np
 from numpy.linalg import lstsq
 
 class InfraSensorPositionEstimater:
-    def __init__(self, mgr):
+    def __init__(self):
         #LiDAR Params
-        self.contact_max = 1000.0
-        self.sensor_pos_y = 1300.0
+        self.contact_max = 3.5
+        self.sensor_pos_y = 0.0
         self.sensor_pos_x = 0.0
-        self.offset_distance = 100.0
+        self.offset_distance = 0.0
         self.offset_x = 0
         self.offset_y = 0
-        self.base_degree = 179
+        self.base_degree = 0
 
 
     def analyze(self, degrees, values):
@@ -48,21 +48,7 @@ class InfraSensorPositionEstimater:
         print(f"(ax, ay): ({self.analyzed_x }, {self.analyzed_y })")
         print(f"( x,  y): ({x}, {y})")
 
-    def run(self):
-        degrees = []
-        values = []
-
-        self.d_sensor = self.pdu_sensor.read()
-        i = 0
-        self.min_deg = 0
-        self.min_value = 10000
-        while i < 360:
-            if self.d_sensor['ranges'][i] != self.contact_max:
-                #print(f"({i} , {self.d_sensor['ranges'][i]})")
-                degrees.append(i)
-                values.append(self.d_sensor['ranges'][i])
-            i = i + 1
-        
+    def run(self, degrees, values):
         if len(degrees) > 0:
             self.analyzed_y, self.analyzed_x, result = self.analyze(degrees, values)
             self.write_pos(result == False)
