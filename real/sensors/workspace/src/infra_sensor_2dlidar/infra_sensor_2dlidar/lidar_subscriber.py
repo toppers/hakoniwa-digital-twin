@@ -20,6 +20,7 @@ class InfraSensorPositionEstimater:
         self.offset_x = 0
         self.offset_y = 0
         self.base_degree = 0
+        self.threshold_intencity = 3000.0
 
 
     def analyze(self, degrees, values):
@@ -47,7 +48,7 @@ class InfraSensorPositionEstimater:
         pos_y = []
         y = 0
         x = 0
-        R = 0.105
+        R = self.offset_distance
         for degree, value in zip(degrees, values):
             radian_degree = radians(self.base_degree - degree)
             pos_y.append(value * cos(radian_degree))
@@ -78,7 +79,8 @@ class InfraSensorPositionEstimater:
 
     def run(self, degrees, values):
         if len(degrees) > 0:
-            self.analyzed_y, self.analyzed_x, result = self.analyze(degrees, values)
+            #self.analyzed_y, self.analyzed_x, result = self.analyze(degrees, values)
+            self.analyzed_y, self.analyzed_x, result = self.analyze_circle(degrees, values)
             self.write_pos(result == False)
         else:
             self.write_pos(True)
@@ -103,11 +105,11 @@ class LIDARSubscriber(Node):
         values = []
         i = 0
         while i < 360:
-            if msg.intensities[i] > 2000.0 and msg.ranges[i] > 0.0:
+            if msg.intensities[i] > self.threshold_intencity and msg.ranges[i] > 0.0:
                 if msg.ranges[i] < self.filter_range:
                     degrees.append(i)
                     values.append(msg.ranges[i])
-                    print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
+                    #print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
             i = i + 1
         return degrees, values
 
