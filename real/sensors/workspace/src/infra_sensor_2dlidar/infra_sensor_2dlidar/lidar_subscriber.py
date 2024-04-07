@@ -1,4 +1,5 @@
 import rclpy
+from collections import deque
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from rclpy.qos import QoSProfile
@@ -20,6 +21,9 @@ class InfraSensorPositionEstimater:
         self.offset_x = 0
         self.offset_y = 0
         self.base_degree = 0
+        self.mean_maxlen = 10
+        self.position_history_x = deque(self.mean_maxlen)
+        self.position_history_y = deque(self.mean_maxlen)
 
 
     def analyze(self, degrees, values):
@@ -73,8 +77,12 @@ class InfraSensorPositionEstimater:
         else:
             x = (self.sensor_pos_x - self.analyzed_x) 
             y = (self.sensor_pos_y - self.analyzed_y)
+            self.position_history_x.append(x)
+            self.position_history_y.append(y)
+            average_x = np.mean(self.position_history_x)
+            average_y = np.mean(self.position_history_y)
         #print(f"(ax, ay): ({self.analyzed_x }, {self.analyzed_y })")
-        print(f"( x,  y): ({x}, {y})")
+        print(f"( x,  y): ({average_x}, {average_y})")
 
     def run(self, degrees, values):
         if len(degrees) >= 3:
