@@ -116,7 +116,7 @@ class InfraSensorPositionEstimater:
 class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
-        self.publisher_ = self.create_publisher(Twist, 'real_pos', 10)
+        self.publisher_ = self.create_publisher(Twist, '/RobotAvator_cmd_pos', 10)
         self.threshold_intencity = 2000.0
         self.filter_range = 0.7
         qos_profile = QoSProfile(depth=10,
