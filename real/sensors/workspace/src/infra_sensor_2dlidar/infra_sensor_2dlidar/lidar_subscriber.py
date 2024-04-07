@@ -2,6 +2,7 @@ import rclpy
 from collections import deque
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
+from geometry_msgs.msg import Twist
 from rclpy.qos import QoSProfile
 from rclpy.qos import ReliabilityPolicy, DurabilityPolicy
 #from infra_sensor_position_estimator import InfraSensorPositionEstimater
@@ -12,7 +13,8 @@ import numpy as np
 from numpy.linalg import lstsq
 
 class InfraSensorPositionEstimater:
-    def __init__(self):
+    def __init__(self, publisher):
+        self.publisher = publisher
         #LiDAR Params
         self.contact_max = 3.5
         self.sensor_pos_y = 0.0
@@ -24,7 +26,7 @@ class InfraSensorPositionEstimater:
         self.mean_maxlen = 10
         self.position_history_x = deque(maxlen=self.mean_maxlen)
         self.position_history_y = deque(maxlen=self.mean_maxlen)
-        self.threshold = 0.5
+        self.threshold = 2.0
         self.average_x = self.average_y = 0
 
     def analyze(self, degrees, values):
@@ -93,8 +95,16 @@ class InfraSensorPositionEstimater:
             self.average_x = np.mean(filtered_x)
             self.average_y = np.mean(filtered_y)
         #print(f"(ax, ay): ({self.analyzed_x }, {self.analyzed_y })")
-        print(f"( x,  y): ({self.average_x}, {self.average_y})")
-
+        #print(f"( x,  y): ({self.average_x}, {self.average_y})")
+        twist_msg = Twist()
+        twist_msg.linear.x = self.average_x
+        twist_msg.linear.y = self.average_y
+        twist_msg.linear.z = 0.0
+        twist_msg.angular.x = 0.0
+        twist_msg.angular.y = 0.0
+        twist_msg.angular.z = 0.0
+        self.publisher.publish(twist_msg)
+        
     def run(self, degrees, values):
         if len(degrees) >= 3:
             #self.analyzed_y, self.analyzed_x, result = self.analyze(degrees, values)
@@ -106,6 +116,7 @@ class InfraSensorPositionEstimater:
 class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
+        self.publisher_ = self.create_publisher(Twist, 'real_pos', 10)
         self.threshold_intencity = 2000.0
         self.filter_range = 0.7
         qos_profile = QoSProfile(depth=10,
@@ -128,7 +139,7 @@ class LIDARSubscriber(Node):
                 if msg.ranges[i] < self.filter_range:
                     degrees.append(i)
                     values.append(msg.ranges[i])
-                    print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
+                    #print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
             i = i + 1
         return degrees, values
 
