@@ -22,8 +22,9 @@ class InfraSensorPositionEstimater:
         self.offset_y = 0
         self.base_degree = 0
         self.mean_maxlen = 10
-        self.position_history_x = deque(self.mean_maxlen)
-        self.position_history_y = deque(self.mean_maxlen)
+        self.position_history_x = deque(maxlen=self.mean_maxlen)
+        self.position_history_y = deque(maxlen=self.mean_maxlen)
+        self.threshold = 0.5
 
 
     def analyze(self, degrees, values):
