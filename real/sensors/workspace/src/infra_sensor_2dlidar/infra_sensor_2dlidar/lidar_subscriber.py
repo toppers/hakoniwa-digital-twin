@@ -16,11 +16,10 @@ class InfraSensorPositionEstimater:
         self.contact_max = 3.5
         self.sensor_pos_y = 0.0
         self.sensor_pos_x = 0.0
-        self.offset_distance = 0.105
+        self.offset_distance = 0.10
         self.offset_x = 0
         self.offset_y = 0
         self.base_degree = 0
-        self.threshold_intencity = 3000.0
 
 
     def analyze(self, degrees, values):
@@ -63,7 +62,7 @@ class InfraSensorPositionEstimater:
         k = -E / 2
         #r = np.sqrt(h**2 + k**2 - F)
 
-        print(f"Center: ({h}, {k}), Radius: {R}")
+        #print(f"Center: ({h}, {k}), Radius: {R}")
         return k, h, True
 
     def write_pos(self, zero=False):
@@ -78,7 +77,7 @@ class InfraSensorPositionEstimater:
         print(f"( x,  y): ({x}, {y})")
 
     def run(self, degrees, values):
-        if len(degrees) > 0:
+        if len(degrees) >= 3:
             #self.analyzed_y, self.analyzed_x, result = self.analyze(degrees, values)
             self.analyzed_y, self.analyzed_x, result = self.analyze_circle(degrees, values)
             self.write_pos(result == False)
@@ -88,6 +87,8 @@ class InfraSensorPositionEstimater:
 class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
+        self.threshold_intencity = 2000.0
+        self.filter_range = 0.7
         qos_profile = QoSProfile(depth=10,
                                  reliability=ReliabilityPolicy.BEST_EFFORT,
                                  durability=DurabilityPolicy.VOLATILE)
@@ -96,7 +97,6 @@ class LIDARSubscriber(Node):
             '/scan',
             self.listener_callback,
             qos_profile)
-        self.filter_range = 0.5
         self.estimater = InfraSensorPositionEstimater()
         self.subscription  # prevent unused variable warning
  
@@ -109,7 +109,7 @@ class LIDARSubscriber(Node):
                 if msg.ranges[i] < self.filter_range:
                     degrees.append(i)
                     values.append(msg.ranges[i])
-                    #print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
+                    print(f"{i} {msg.ranges[i]} {msg.intensities[i]}")
             i = i + 1
         return degrees, values
 
