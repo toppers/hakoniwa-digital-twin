@@ -25,7 +25,7 @@ class InfraSensorPositionEstimater:
         self.position_history_x = deque(maxlen=self.mean_maxlen)
         self.position_history_y = deque(maxlen=self.mean_maxlen)
         self.threshold = 0.5
-
+        self.average_x = self.average_y = 0
 
     def analyze(self, degrees, values):
         deg = np.array(degrees)
@@ -69,7 +69,15 @@ class InfraSensorPositionEstimater:
 
         #print(f"Center: ({h}, {k}), Radius: {R}")
         return k, h, True
-
+    
+    def filter_outliers(self, values, threshold=2):
+        if len(values) < 2:
+            return values
+        mean_val = np.mean(values)
+        std_val = np.std(values)
+        filtered_values = [x for x in values if abs(x - mean_val) <= threshold * std_val]
+        return filtered_values if len(filtered_values) > 0 else values
+    
     def write_pos(self, zero=False):
         x = 0
         y = 0
@@ -80,10 +88,12 @@ class InfraSensorPositionEstimater:
             y = (self.sensor_pos_y - self.analyzed_y)
             self.position_history_x.append(x)
             self.position_history_y.append(y)
-            average_x = np.mean(self.position_history_x)
-            average_y = np.mean(self.position_history_y)
+            filtered_x = self.filter_outliers(list(self.position_history_x), self.threshold)
+            filtered_y = self.filter_outliers(list(self.position_history_y), self.threshold)
+            self.average_x = np.mean(filtered_x)
+            self.average_y = np.mean(filtered_y)
         #print(f"(ax, ay): ({self.analyzed_x }, {self.analyzed_y })")
-        print(f"( x,  y): ({average_x}, {average_y})")
+        print(f"( x,  y): ({self.average_x}, {self.average_y})")
 
     def run(self, degrees, values):
         if len(degrees) >= 3:
