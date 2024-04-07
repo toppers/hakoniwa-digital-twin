@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'lidar_subscriber = infra_sensor_2dlidar.lidar_subscriber:main',
         ],
     },
 )
