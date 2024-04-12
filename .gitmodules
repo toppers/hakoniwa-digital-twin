@@ -1,6 +1,0 @@
-[submodule "third-party/hakoniwa-core-cpp-client"]
-	path = third-party/hakoniwa-core-cpp-client
-	url = https://github.com/toppers/hakoniwa-core-cpp-client.git
-[submodule "third-party/hakoniwa-bridge"]
-	path = third-party/hakoniwa-bridge
-	url = https://github.com/toppers/hakoniwa-bridge.git
