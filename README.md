@@ -62,30 +62,120 @@
 
 ## インストール手順
 
+### コンフィグファイルの作成
+
+箱庭のコンフィグファイルである custom.jsonは、リアルとバーチャルとで共有しますので、それぞれにコピー配置してください。
+custom.jsonは、箱庭ドローンシミュレータのUnityエディタ上で、`Generate`を実行することで作成できます。
+
 ### リアル側
 
 リアル側では、以下の対応が必要となります。
 
-* Ubuntu PC に RosProxyをインストール
-* TB3にインフラセンサモジュールをインストール
+* [Ubuntu PC に RosProxyをインストール](#UbuntuPCにRosProxyをインストール)
+* [TB3にインフラセンサモジュールをインストール](#TB3にインフラセンサモジュールをインストール)
 * Spike：TODO
+
+#### UbuntuPCにRosProxyをインストール
+
+リポジトリのクローン：
+```
+git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
+```
+
+ディレクトリの移動：
+```
+cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu
+```
+
+RosProxyのインストール：
+
+https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instructions
+
+#### TB3にインフラセンサモジュールをインストール
+
+リポジトリのクローン：
+```
+git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
+```
+
+ディレクトリの移動：
+```
+cd hakoniwa-digital-twin/bridge/real/sensors
+```
+
+ビルド：
+```
+colcon build --packages-select infra_sensor_2dlidar
+```
+
+成功するとこうなります。
+```
+Starting >>> infra_sensor_2dlidar
+Finished <<< infra_sensor_2dlidar [4.47s]   
+```
 
 ### バーチャル側
 
 バーチャル側では、以下の対応が必要となります。
 
-* 箱庭ドローンシミュレータのインストール
-* ShmProxyのインストール
+* [箱庭ドローンシミュレータのインストール](https://github.com/toppers/hakoniwa-px4sim)
+* [ShmProxyのインストール](#ShmProxyのインストール)
+
+
+#### ShmProxyのインストール
+
+リポジトリのクローン：
+```
+git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
+```
+
+ディレクトリの移動：
+```
+cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu
+```
+
+ShmProxyのインストール：
+
+https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instructions
 
 
 ## 実行手順
 
 1. 箱庭ドローンシミュレータを起動する
-2. ShmProxyを起動する
-3. RosProxyを起動する
-4. Infra Sensorを起動する
+2. [ShmProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#shmproxy)
+3. [RosProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#rosproxy)
+4. [Infra Sensorを起動する](#InfraSensorを起動する)
 5. リアル・ロボットを起動する
 6. バーチャル・ドローンのオペレーションを開始する
+
+### InfraSensorを起動する
+
+```
+source install/setup.bash 
+```
+
+```
+ros2 run infra_sensor_2dlidar lidar_subscriber
+```
+
+成功するとこうなります。
+```
+[INFO] [1715210973.115290281] [lidar_subscriber]: InfraSensor UP
+```
+
+ubuntu PC 側で、以下のコマンドを発行して、`RobotAvator_cmd_pos`が見えれば成功です。
+
+```
+ros2 topic list
+```
+
+事項結果：
+```
+/RobotAvator_cmd_pos
+/parameter_events
+/rosout
+/scan
+```
 
 ## プログラム構成
 
