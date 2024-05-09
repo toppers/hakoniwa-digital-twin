@@ -19,7 +19,12 @@ def fit_circle(x, y):
     result = least_squares(residuals, initial_guess, args=(x, y))
     
     h, k, r = result.x
-    return h, k, r
+    # 残差の計算
+    residual_values = residuals([h, k, r], x, y)
+    mae = np.mean(np.abs(residual_values))
+    variance = np.var(residual_values)
+    
+    return h, k, r, mae, variance    
 
 class InfraSensorPositionEstimater:
     def __init__(self, b_degree, mean_max, th_variance):
@@ -39,29 +44,6 @@ class InfraSensorPositionEstimater:
         self.threshold = th_variance
         self.average_x = self.average_y = self.average_r = 0
 
-    def analyze_circle2(self, degrees, values):
-        pos_x = []
-        pos_y = []
-        y = 0
-        x = 0
-        R = self.offset_distance
-        for degree, value in zip(degrees, values):
-            radian_degree = radians(self.base_degree - degree)
-            pos_y.append(value * cos(radian_degree))
-            pos_x.append(value * sin(radian_degree))
-        x_data = np.array(pos_x)
-        y_data = np.array(pos_y)
-        A = np.vstack([x_data, y_data, np.ones(len(x_data))]).T
-        B = -x_data**2 - y_data**2 -R**2
-        params, residuals, rank, s = np.linalg.lstsq(A, B, rcond=None)
-        D, E, F = params
-        h = -D / 2
-        k = -E / 2
-        #r = np.sqrt(h**2 + k**2 - F)
-
-        print(f"Center: ({h}, {k}), Radius: {R}")
-        return k, h, R, True
-
     def analyze_circle(self, degrees, values):
         pos_x = []
         pos_y = []
@@ -71,17 +53,8 @@ class InfraSensorPositionEstimater:
             pos_x.append(value * sin(radian_degree))
         x_data = np.array(pos_x)
         y_data = np.array(pos_y)
-        #A = np.vstack([x_data, y_data, np.ones(len(x_data))]).T
-        #B = x_data**2 + y_data**2
-        #params, residuals, rank, s = np.linalg.lstsq(A, B, rcond=None)
-        #D, E, F = params
-        #h = -D / 2
-        #k = -E / 2
-        # 半径rを計算するときは、Fを加える必要があります。
-        #r = np.sqrt(h**2 + k**2 - F) if F < 0 else np.sqrt(h**2 + k**2 + F)
-        #h, k, r = fit_circle_center(x_data, y_data, 1.0)
-        h, k, r = fit_circle(x_data, y_data)
-        print(f"Center: ({h}, {k}), Radius: {r}")
+        h, k, r, m, v = fit_circle(x_data, y_data)
+        print(f"Center: ({h}, {k}), Radius: {r} MAE: {m} Variance: {v}")
         return h, k, r, True
 
     def filter_outliers(self, values):
