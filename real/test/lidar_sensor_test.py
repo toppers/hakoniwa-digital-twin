@@ -42,7 +42,7 @@ def main():
         print(f"Usage: {sys.argv[0]} <asset_name> <config_path> <delta_time_msec>")
         return 1
     
-    lidar_filter = InfraSensorLidarFilter(360, 0.0, 10.0)
+    lidar_filter = InfraSensorLidarFilter(360, -1.0, 980)
     lidar_pos_estimator = InfraSensorPositionEstimater()
 
     asset_name = sys.argv[1]

@@ -2,6 +2,24 @@ from collections import deque
 from math import cos, sin, radians
 import numpy as np
 from numpy.linalg import lstsq
+from scipy.optimize import least_squares
+
+def residuals(circle, x, y):
+    # 中心(h, k)と半径r
+    h, k, r = circle
+    return (x - h)**2 + (y - k)**2 - r**2
+
+def fit_circle(x, y):
+    # 初期推定値: 重心を中心とし、平均距離を半径とする
+    x_m = np.mean(x)
+    y_m = np.mean(y)
+    initial_guess = [x_m, y_m, np.mean(np.sqrt((x - x_m)**2 + (y - y_m)**2))]
+    
+    # 最小二乗法で円をフィット
+    result = least_squares(residuals, initial_guess, args=(x, y))
+    
+    h, k, r = result.x
+    return h, k, r
 
 class InfraSensorPositionEstimater:
     def __init__(self):
@@ -19,7 +37,7 @@ class InfraSensorPositionEstimater:
         self.threshold = 2.0
         self.average_x = self.average_y = 0
 
-    def analyze_circle(self, degrees, values):
+    def analyze_circle2(self, degrees, values):
         pos_x = []
         pos_y = []
         y = 0
@@ -39,9 +57,30 @@ class InfraSensorPositionEstimater:
         k = -E / 2
         #r = np.sqrt(h**2 + k**2 - F)
 
-        #print(f"Center: ({h}, {k}), Radius: {R}")
+        print(f"Center: ({h}, {k}), Radius: {R}")
         return k, h, True
-    
+
+    def analyze_circle(self, degrees, values):
+        pos_x = []
+        pos_y = []
+        for degree, value in zip(degrees, values):
+            radian_degree = radians(self.base_degree - degree)
+            pos_y.append(value * cos(radian_degree))
+            pos_x.append(value * sin(radian_degree))
+        x_data = np.array(pos_x)
+        y_data = np.array(pos_y)
+        #A = np.vstack([x_data, y_data, np.ones(len(x_data))]).T
+        #B = x_data**2 + y_data**2
+        #params, residuals, rank, s = np.linalg.lstsq(A, B, rcond=None)
+        #D, E, F = params
+        #h = -D / 2
+        #k = -E / 2
+        # 半径rを計算するときは、Fを加える必要があります。
+        #r = np.sqrt(h**2 + k**2 - F) if F < 0 else np.sqrt(h**2 + k**2 + F)
+        h, k, r = fit_circle(x_data, y_data)
+        print(f"Center: ({h}, {k}), Radius: {r}")
+        return h, k, True
+
     def filter_outliers(self, values, threshold=2):
         if len(values) < 2:
             return values
