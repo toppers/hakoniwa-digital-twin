@@ -40,7 +40,7 @@ class InfraSensorPositionEstimater:
         self.threshold = th_variance
         self.target_radius = t_radius * 100 # m to cm
         self.target_check_value = t_cv
-        self.average_x = self.average_y = self.average_r = 0
+        self.average_x = self.average_y = self.average_r = 0.0
 
     def analyze_circle(self, degrees, values):
         pos_x = []
@@ -68,8 +68,8 @@ class InfraSensorPositionEstimater:
         return filtered_values if len(filtered_values) > 0 else values
     
     def write_pos(self, result=None):
-        x = 0
-        y = 0
+        x = 0.0
+        y = 0.0
         if result is None:
             pass
         else:
