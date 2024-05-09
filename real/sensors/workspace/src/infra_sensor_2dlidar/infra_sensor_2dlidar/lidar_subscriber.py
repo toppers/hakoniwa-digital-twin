@@ -27,7 +27,7 @@ class LIDARSubscriber(Node):
  
 
     def listener_callback(self, msg):
-        degrees, values = self.filter.filter_ranges(msg.intensities, self.ranges)
+        degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges)
         x, y = self.estimater.run(degrees, values)
         twist_msg = Twist()
         twist_msg.linear.x = x
