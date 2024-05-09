@@ -22,7 +22,7 @@ class LIDARSubscriber(Node):
             '/scan',
             self.listener_callback,
             qos_profile)
-        self.estimater = InfraSensorPositionEstimater(179, 10, 1.0)
+        self.estimater = InfraSensorPositionEstimater(179, 10, 1.0, 0.1, 0.1)
         self.subscription  # prevent unused variable warning
  
 
