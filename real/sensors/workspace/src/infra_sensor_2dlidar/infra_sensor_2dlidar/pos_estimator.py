@@ -38,7 +38,7 @@ class InfraSensorPositionEstimater:
         self.position_history_y = deque(maxlen=self.mean_maxlen)
         self.position_history_r = deque(maxlen=self.mean_maxlen)
         self.threshold = th_variance
-        self.target_radius = t_radius * 100 # m to cm
+        self.target_radius = t_radius # meter
         self.target_check_value = t_cv
         self.average_x = self.average_y = self.average_r = 0.0
 
