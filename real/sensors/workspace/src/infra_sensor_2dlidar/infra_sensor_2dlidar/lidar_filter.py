@@ -13,6 +13,6 @@ class InfraSensorLidarFilter:
                 if ranges[i] < self.filter_range:
                     degrees.append(i)
                     values.append(ranges[i])
-                    #print(f"{i} {ranges[i]} {intensities[i]}")
+                    print(f"{i} {ranges[i]} {intensities[i]}")
             i = i + 1
         return degrees, values

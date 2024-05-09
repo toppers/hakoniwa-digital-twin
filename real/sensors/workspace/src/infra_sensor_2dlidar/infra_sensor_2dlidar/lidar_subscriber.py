@@ -13,7 +13,7 @@ class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
         self.publisher_ = self.create_publisher(Twist, '/RobotAvator_cmd_pos', 10)
-        self.filter = InfraSensorLidarFilter(360, 2000.0, 0.7)
+        self.filter = InfraSensorLidarFilter(360, -1, 0.7)
         qos_profile = QoSProfile(depth=10,
                                  reliability=ReliabilityPolicy.BEST_EFFORT,
                                  durability=DurabilityPolicy.VOLATILE)
@@ -22,7 +22,7 @@ class LIDARSubscriber(Node):
             '/scan',
             self.listener_callback,
             qos_profile)
-        self.estimater = InfraSensorPositionEstimater()
+        self.estimater = InfraSensorPositionEstimater(179, 10, 1.0)
         self.subscription  # prevent unused variable warning
  
 

@@ -43,7 +43,7 @@ def main():
         return 1
     
     lidar_filter = InfraSensorLidarFilter(360, -1.0, 980)
-    lidar_pos_estimator = InfraSensorPositionEstimater()
+    lidar_pos_estimator = InfraSensorPositionEstimater(0, 10, 1.0)
 
     asset_name = sys.argv[1]
     config_path = sys.argv[2]
