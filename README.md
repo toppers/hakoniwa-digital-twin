@@ -144,9 +144,26 @@ https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instr
 1. 箱庭ドローンシミュレータを起動する
 2. [ShmProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#shmproxy)
 3. [RosProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#rosproxy)
-4. [Infra Sensorを起動する](#InfraSensorを起動する)
-5. リアル・ロボットを起動する
-6. バーチャル・ドローンのオペレーションを開始する
+4. [TB3のROSノードを起動する](TB3のROSノードを起動する)
+5. [Infra Sensorを起動する](#InfraSensorを起動する)
+6. リアル・ロボットを起動する
+7. バーチャル・ドローンのオペレーションを開始する
+
+### TB3のROSノードを起動する
+
+ディレクトリ移動：
+```
+cd turtlebot3_ws
+```
+
+ROSノード起動：
+```
+source install/setup.bash 
+```
+
+```
+ros2 launch turtlebot3_bringup robot.launch.py
+```
 
 ### InfraSensorを起動する
 
