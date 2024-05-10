@@ -76,7 +76,7 @@ class InfraSensorPositionEstimater:
             valid = True
 
         print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
-        return h, k, r, valid
+        return h, k, r, valid, diff_value
 
     def filter_outliers(self, values):
         if len(values) < 2:
@@ -172,12 +172,14 @@ class InfraSensorPositionEstimater:
                     significant_segments.append(significant_data)
 
             index = 0
+            valid_results = []
             for seg in significant_segments:
                 seg_degrees, seg_values = zip(*seg)
                 if len(seg_degrees) >= 3:
-                    analyzed_y, analyzed_x, analyzed_r, valid = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
+                    analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
                     if valid:
-                        target_result = (analyzed_x, analyzed_y, analyzed_r)
+                        target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
+                        valid_results.append(target_result)
                         for deg, val in seg:
                             print(f"VALID segment[{index}] ( {deg} {val} )")
                         print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
@@ -185,7 +187,13 @@ class InfraSensorPositionEstimater:
                     else:
                         for deg, val in seg:
                             print(f"INVALID segment[{index}] ( {deg} {val} )")
-
-            return self.write_pos(None)
+            valid_result = None
+            min_diff = 100000
+            for v in valid_results:
+                analyzed_x, analyzed_y, analyzed_r, diff_value = v
+                if diff_value < min_diff:
+                    valid_result =  (analyzed_x, analyzed_y, analyzed_r)
+                    min_diff = diff_value
+            return self.write_pos(valid_result)
         else:
             return self.write_pos(None)
