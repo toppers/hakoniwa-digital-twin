@@ -70,7 +70,8 @@ class InfraSensorPositionEstimater:
         valid = is_target_radius and is_valid_circle
 
         if not valid and is_valid_circle and diff_value <= self.target_radius * 0.5:
-            h, k  = fit_circle_fixed_radius(x_data, y_data)
+            print("refit: diff_value = ", diff_value)
+            h, k  = fit_circle_fixed_radius(x_data, y_data, self.target_radius)
             r = self.target_radius
             valid = True
 
