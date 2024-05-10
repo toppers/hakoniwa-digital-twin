@@ -13,7 +13,7 @@ class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
         self.publisher_ = self.create_publisher(Twist, '/RobotAvator_cmd_pos', 10)
-        self.filter = InfraSensorLidarFilter(360)
+        self.filter = InfraSensorLidarFilter(360, 10)
         qos_profile = QoSProfile(depth=10,
                                  reliability=ReliabilityPolicy.BEST_EFFORT,
                                  durability=DurabilityPolicy.VOLATILE)
