@@ -183,7 +183,6 @@ class InfraSensorPositionEstimater:
                         for deg, val in seg:
                             print(f"VALID segment[{index}] ( {deg} {val} )")
                         print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
-                        return self.write_pos(target_result)
                     else:
                         for deg, val in seg:
                             print(f"INVALID segment[{index}] ( {deg} {val} )")
