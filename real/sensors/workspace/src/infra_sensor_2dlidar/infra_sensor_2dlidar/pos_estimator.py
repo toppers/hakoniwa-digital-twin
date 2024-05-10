@@ -89,23 +89,24 @@ class InfraSensorPositionEstimater:
             self.average_x = np.mean(filtered_x)
             self.average_y = np.mean(filtered_y)
             self.average_r = np.mean(filtered_r)
-        #print(f"(ax, ay): ({self.analyzed_x }, {self.analyzed_y })")
-        print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
+            print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
         return self.average_x, self.average_y
         
-    def get_segments(self, degrees, values):
+    def get_segments(self, degrees, values, value_threshold):
         segments = []
         current_segment = []
         previous_degree = degrees[0] - 1  # 最初の要素より1小さい値で初期化
+        previous_value = values[0]
 
         for degree, value in zip(degrees, values):
-            if degree != previous_degree + 1:
+            if degree != previous_degree + 1 or abs(value - previous_value) > value_threshold:
                 # 連続性が途切れたら新しいセグメントを開始
                 if current_segment:
                     segments.append(current_segment)
                 current_segment = []
             current_segment.append((degree, value))
             previous_degree = degree
+            previous_value = value
 
         # 最後のセグメントを追加
         if current_segment:
@@ -137,33 +138,38 @@ class InfraSensorPositionEstimater:
             return True  # スキャンが完了したことを示す
 
     def is_significant_change(self, degree, value, threshold=0.5):
-        if abs(self.scan_data[degree] - value) > threshold:
+        if value > 0 and abs(self.scan_data[degree] - value) > threshold:
             return True
         return False
 
-    def run(self, degrees, values, scan_count_max):
+    def run(self, degrees, values, scan_count_max, value_threshold=0.1):
         if not self.scan(degrees, values, scan_count_max):
             print("scanning: ", self.scan_count)
             return  self.write_pos(None)
         # スキャンが完了している場合のみ以下の分析を行う
         significant_segments = []
         if len(degrees) >= 3:
-            segments = self.get_segments(degrees, values)
+            segments = self.get_segments(degrees, values, value_threshold)
             for segment in segments:
                 significant_data = [(deg, val) for deg, val in segment if self.is_significant_change(deg, val)]
                 if significant_data:
                     significant_segments.append(significant_data)
-                    for deg, val in significant_data:
-                        print(f"found: {deg} {val}")
 
+            index = 0
             for seg in significant_segments:
                 seg_degrees, seg_values = zip(*seg)
                 if len(seg_degrees) >= 3:
                     analyzed_y, analyzed_x, analyzed_r, valid = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
                     if valid:
                         target_result = (analyzed_x, analyzed_y, analyzed_r)
+                        for deg, val in seg:
+                            print(f"VALID segment[{index}] ( {deg} {val} )")
                         print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
                         return self.write_pos(target_result)
+                    else:
+                        for deg, val in seg:
+                            print(f"INVALID segment[{index}] ( {deg} {val} )")
+
             return self.write_pos(None)
         else:
             return self.write_pos(None)
