@@ -29,9 +29,6 @@ def fit_circle(x, y):
 class InfraSensorPositionEstimater:
     def __init__(self, b_degree, mean_max, th_variance, t_radius, t_cv):
         #LiDAR Params
-        self.sensor_pos_y = 0.0
-        self.sensor_pos_x = 0.0
-        self.sensor_r = 0.0
         self.base_degree = b_degree
         self.mean_maxlen = mean_max
         self.position_history_x = deque(maxlen=self.mean_maxlen)
@@ -50,8 +47,8 @@ class InfraSensorPositionEstimater:
         pos_y = []
         for degree, value in zip(degrees, values):
             radian_degree = radians(self.base_degree - degree)
-            pos_y.append(value * cos(radian_degree))
-            pos_x.append(value * sin(radian_degree))
+            pos_x.append(value * cos(radian_degree))
+            pos_y.append(value * sin(radian_degree))
         x_data = np.array(pos_x)
         y_data = np.array(pos_y)
         h, k, r, mae, variance = fit_circle(x_data, y_data)
@@ -77,9 +74,9 @@ class InfraSensorPositionEstimater:
             return self.average_x, self.average_y
         else:
             analyzed_x, analyzed_y, analyzed_r = result
-            x = (self.sensor_pos_x - analyzed_x) 
-            y = (self.sensor_pos_y - analyzed_y)
-            r = (self.sensor_r - analyzed_r)
+            x = analyzed_x 
+            y = analyzed_y
+            r = analyzed_r
             self.position_history_x.append(x)
             self.position_history_y.append(y)
             self.position_history_r.append(r)
