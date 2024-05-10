@@ -26,6 +26,17 @@ def fit_circle(x, y):
     
     return h, k, r, mae, variance    
 
+def fit_circle_fixed_radius(x, y, r):
+    # x, y: データポイントの座標
+    # r: 既知の半径
+    # 中心 (h, k) を求める
+    A = np.vstack([x, y, np.ones(len(x))]).T
+    b = x**2 + y**2
+    u = np.linalg.lstsq(A, b, rcond=None)[0]
+    h = 0.5 * u[0]
+    k = 0.5 * u[1]
+    return h, k
+
 class InfraSensorPositionEstimater:
     def __init__(self, b_degree, mean_max, th_variance, t_radius, t_cv):
         #LiDAR Params
@@ -53,11 +64,18 @@ class InfraSensorPositionEstimater:
         y_data = np.array(pos_y)
         h, k, r, mae, variance = fit_circle(x_data, y_data)
         # 半径がターゲットに近いか確認し、MAE と Variance が閾値以下か評価
-        is_target_radius = abs(r - self.target_radius) <= self.target_radius * 0.1  # 10%の許容範囲内
+        diff_value = abs(r - self.target_radius)
+        is_target_radius = diff_value <= self.target_radius * 0.1  # 10%の許容範囲内
         is_valid_circle = mae < self.target_check_value and variance < self.target_check_value**2
-        
+        valid = is_target_radius and is_valid_circle
+
+        if not valid and is_valid_circle and diff_value <= self.target_radius * 0.5:
+            h, k  = fit_circle_fixed_radius(x_data, y_data)
+            r = self.target_radius
+            valid = True
+
         print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
-        return h, k, r, is_target_radius and is_valid_circle
+        return h, k, r, valid
 
     def filter_outliers(self, values):
         if len(values) < 2:
