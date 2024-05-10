@@ -13,7 +13,7 @@ class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
         self.publisher_ = self.create_publisher(Twist, '/RobotAvator_cmd_pos', 10)
-        self.filter = InfraSensorLidarFilter(360, -1, 0.7)
+        self.filter = InfraSensorLidarFilter(360)
         qos_profile = QoSProfile(depth=10,
                                  reliability=ReliabilityPolicy.BEST_EFFORT,
                                  durability=DurabilityPolicy.VOLATILE)
@@ -28,7 +28,7 @@ class LIDARSubscriber(Node):
 
     def listener_callback(self, msg):
         degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges)
-        x, y = self.estimater.run(degrees, values)
+        x, y = self.estimater.run(degrees, values, 100)
         twist_msg = Twist()
         twist_msg.linear.x = x
         twist_msg.linear.y = y

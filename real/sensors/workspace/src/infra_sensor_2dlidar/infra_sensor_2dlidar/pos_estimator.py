@@ -41,6 +41,9 @@ class InfraSensorPositionEstimater:
         self.target_radius = t_radius # meter
         self.target_check_value = t_cv
         self.average_x = self.average_y = self.average_r = 0.0
+        self.scan_history = {}
+        self.scan_data = {}
+        self.scan_count = 0
 
     def analyze_circle(self, degrees, values):
         pos_x = []
@@ -71,7 +74,7 @@ class InfraSensorPositionEstimater:
         x = 0.0
         y = 0.0
         if result is None:
-            pass
+            return self.average_x, self.average_y
         else:
             analyzed_x, analyzed_y, analyzed_r = result
             x = (self.sensor_pos_x - analyzed_x) 
@@ -110,17 +113,56 @@ class InfraSensorPositionEstimater:
         
         return segments
     
-    def run(self, degrees, values):
+    def _scan(self, degrees, values):
+        for degree, value in zip(degrees, values):
+            if degree not in self.scan_history:
+                self.scan_history[degree] = deque(maxlen=self.mean_maxlen)
+            self.scan_history[degree].append(value)
+
+    def _finalize_scan(self):
+        # 収集したデータから平均値を計算
+        for degree, value_deque in self.scan_history.items():
+            self.scan_data[degree] = np.mean(value_deque)
+        print("Environment scan completed and data averaged.")
+
+    def scan(self, degrees, values, scan_count_max = 100):
+        if self.scan_count < scan_count_max:
+            self._scan(degrees, values)
+            self.scan_count += 1
+            return False  # スキャンがまだ終了していないことを示す
+        else:
+            if not hasattr(self, 'finalized'):
+                self._finalize_scan()
+                self.finalized = True  # スキャン終了とデータ処理完了のフラグ
+            return True  # スキャンが完了したことを示す
+
+    def is_significant_change(self, degree, value, threshold=0.5):
+        if abs(self.scan_data[degree] - value) > threshold:
+            return True
+        return False
+
+    def run(self, degrees, values, scan_count_max):
+        if not self.scan(degrees, values, scan_count_max):
+            print("scanning: ", self.scan_count)
+            return  self.write_pos(None)
+        # スキャンが完了している場合のみ以下の分析を行う
+        significant_segments = []
         if len(degrees) >= 3:
             segments = self.get_segments(degrees, values)
-            target_result = None
             for segment in segments:
-                seg_degrees, seg_values = zip(*segment)  # セグメントから度数と値のリストを抽出
+                significant_data = [(deg, val) for deg, val in segment if self.is_significant_change(deg, val)]
+                if significant_data:
+                    significant_segments.append(significant_data)
+                    for deg, val in significant_data:
+                        print(f"found: {deg} {val}")
+
+            for seg in significant_segments:
+                seg_degrees, seg_values = zip(*seg)
                 if len(seg_degrees) >= 3:
                     analyzed_y, analyzed_x, analyzed_r, valid = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
                     if valid:
                         target_result = (analyzed_x, analyzed_y, analyzed_r)
-                        print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")  # 有効な円が見つかった場合のログ
+                        print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
                         return self.write_pos(target_result)
             return self.write_pos(None)
         else:

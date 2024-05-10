@@ -23,8 +23,9 @@ def my_on_simulation_step(context):
     pdu_lidar = pdu_manager.get_pdu('2DLiDAR', 0)
     lidar_data = pdu_lidar.read()
     degrees, values = lidar_filter.filter_ranges(lidar_data['intensities'], lidar_data['ranges'])
-    x, y = lidar_pos_estimator.run(degrees, values)
-    print(f"({x}, {y})")
+    x, y = lidar_pos_estimator.run(degrees, values, 100)
+    if x > 0 and y > 0:
+        print(f"({x}, {y})")
     return 0
 
 
@@ -42,7 +43,7 @@ def main():
         print(f"Usage: {sys.argv[0]} <asset_name> <config_path> <delta_time_msec>")
         return 1
     
-    lidar_filter = InfraSensorLidarFilter(360, -1.0, 340)
+    lidar_filter = InfraSensorLidarFilter(360)
     lidar_pos_estimator = InfraSensorPositionEstimater(0, 10, 1.0, 10, 0.1)
 
     asset_name = sys.argv[1]
