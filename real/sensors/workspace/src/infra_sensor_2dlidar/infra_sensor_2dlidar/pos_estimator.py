@@ -37,6 +37,11 @@ def fit_circle_fixed_radius(x, y, r):
     k = 0.5 * u[1]
     return h, k
 
+def get_distance(pos1, pos2):
+    x1, y1 = pos1
+    x2, y2 = pos2
+    return ( (x1 - x2)**2 + (y1 - y2)**2 )
+
 class InfraSensorPositionEstimater:
     def __init__(self, b_degree, mean_max, th_variance, t_radius, t_cv):
         #LiDAR Params
@@ -52,6 +57,7 @@ class InfraSensorPositionEstimater:
         self.scan_history = {}
         self.scan_data = {}
         self.scan_count = 0
+        self.target_robot = None
 
     def analyze_circle(self, degrees, values):
         pos_x = []
@@ -70,12 +76,12 @@ class InfraSensorPositionEstimater:
         valid = is_target_radius and is_valid_circle
 
         if not valid and is_valid_circle and diff_value <= self.target_radius * 0.5:
-            print("refit: diff_value = ", diff_value)
+            #print("refit: diff_value = ", diff_value)
             h, k  = fit_circle_fixed_radius(x_data, y_data, self.target_radius)
             r = self.target_radius
             valid = True
 
-        print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
+        #print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
         return h, k, r, valid, diff_value
 
     def filter_outliers(self, values):
@@ -105,7 +111,7 @@ class InfraSensorPositionEstimater:
             self.average_x = np.mean(filtered_x)
             self.average_y = np.mean(filtered_y)
             self.average_r = np.mean(filtered_r)
-            print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
+            #print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
         return self.average_x, self.average_y
         
     def get_segments(self, degrees, values, value_threshold):
@@ -140,6 +146,7 @@ class InfraSensorPositionEstimater:
         # 収集したデータから平均値を計算
         for degree, value_deque in self.scan_history.items():
             self.scan_data[degree] = np.mean(value_deque)
+            print(f"Environemnt data({degree}): {self.scan_data[degree]}")
         print("Environment scan completed and data averaged.")
 
     def scan(self, degrees, values, scan_count_max = 100):
@@ -180,19 +187,36 @@ class InfraSensorPositionEstimater:
                     if valid:
                         target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
                         valid_results.append(target_result)
-                        for deg, val in seg:
-                            print(f"VALID segment[{index}] ( {deg} {val} )")
-                        print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
+                        #for deg, val in seg:
+                        #    print(f"VALID segment[{index}] ( {deg} {val} )")
+                        #print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
                     else:
-                        for deg, val in seg:
-                            print(f"INVALID segment[{index}] ( {deg} {val} )")
+                        #for deg, val in seg:
+                        #    print(f"INVALID segment[{index}] ( {deg} {val} )")
+                        pass
+                index += 1
+            
             valid_result = None
-            min_diff = 100000
+            min_value = 100000
             for v in valid_results:
                 analyzed_x, analyzed_y, analyzed_r, diff_value = v
-                if diff_value < min_diff:
-                    valid_result =  (analyzed_x, analyzed_y, analyzed_r)
-                    min_diff = diff_value
+                if self.target_robot is None:
+                    if diff_value < min_value:
+                        valid_result =  (analyzed_x, analyzed_y, analyzed_r)
+                        min_value = diff_value
+                        self.target_robot = (analyzed_x, analyzed_y)
+                        print(f"TARGET SET: {analyzed_x}, {analyzed_y}")
+                elif self.target_robot:
+                    obj = (analyzed_x, analyzed_y)
+                    diff_value = get_distance(self.target_robot, obj)
+                    if diff_value < min_value:
+                        valid_result =  (analyzed_x, analyzed_y, analyzed_r)
+                        min_value = diff_value
+                        prev_robot = self.target_robot
+                        self.target_robot = (analyzed_x, analyzed_y)
+                        if get_distance(prev_robot, self.target_robot) > 0.0:
+                            print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
+            
             return self.write_pos(valid_result)
         else:
             return self.write_pos(None)

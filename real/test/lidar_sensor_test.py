@@ -23,9 +23,9 @@ def my_on_simulation_step(context):
     pdu_lidar = pdu_manager.get_pdu('2DLiDAR', 0)
     lidar_data = pdu_lidar.read()
     degrees, values = lidar_filter.filter_ranges(lidar_data['intensities'], lidar_data['ranges'])
-    x, y = lidar_pos_estimator.run(degrees, values, 100, 10)
-    if x > 0 and y > 0:
-        print(f"({x}, {y})")
+    x, y = lidar_pos_estimator.run(degrees, values, scan_count_max=100, value_threshold=10)
+    #if x > 0 and y > 0:
+    #    print(f"({x}, {y})")
     return 0
 
 
