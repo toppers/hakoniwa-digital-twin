@@ -189,7 +189,7 @@ class InfraSensorPositionEstimater:
             valid_result = None
             min_diff = 100000
             for v in valid_results:
-                analyzed_x, analyzed_y, analyzed_r, diff_value = zip(*v)
+                analyzed_x, analyzed_y, analyzed_r, diff_value = v
                 if diff_value < min_diff:
                     valid_result =  (analyzed_x, analyzed_y, analyzed_r)
                     min_diff = diff_value
