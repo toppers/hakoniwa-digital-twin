@@ -134,7 +134,7 @@ class InfraSensorPositionEstimater:
                 self.finalized = True  # スキャン終了とデータ処理完了のフラグ
             return True  # スキャンが完了したことを示す
 
-    def is_significant_change(self, degree, value, threshold=0.5):
+    def is_significant_change(self, degree, value, threshold=0.2):
         if value > 0 and abs(self.scan_data[degree] - value) > threshold:
             return True
         return False
