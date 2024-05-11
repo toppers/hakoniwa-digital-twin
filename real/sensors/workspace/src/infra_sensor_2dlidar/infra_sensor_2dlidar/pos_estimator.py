@@ -215,11 +215,11 @@ class InfraSensorPositionEstimater:
                     if diff_value < min_value:
                         valid_result =  (analyzed_x, analyzed_y, analyzed_r)
                         min_value = diff_value
-            
-                prev_robot = self.target_robot
-                self.target_robot = valid_result
-                if get_distance(prev_robot, valid_result) > 0.05:
-                    print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
+                if valid_result:
+                    prev_robot = self.target_robot
+                    self.target_robot = valid_result
+                    if get_distance(prev_robot, valid_result) > 0.05:
+                        print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
 
             return self.write_pos(self.target_robot)
         else:
