@@ -198,15 +198,17 @@ class InfraSensorPositionEstimater:
             
             valid_result = None
             min_value = 100000
-            for v in valid_results:
-                analyzed_x, analyzed_y, analyzed_r, diff_value = v
-                if self.target_robot is None:
+            if self.target_robot is None:
+                for v in valid_results:
+                    analyzed_x, analyzed_y, analyzed_r, diff_value = v
                     if diff_value < min_value:
                         valid_result =  (analyzed_x, analyzed_y, analyzed_r)
                         min_value = diff_value
                         self.target_robot = (analyzed_x, analyzed_y)
                         print(f"TARGET SET: {analyzed_x}, {analyzed_y}")
-                elif self.target_robot:
+            else:
+                for v in valid_results:
+                    analyzed_x, analyzed_y, analyzed_r, diff_value = v
                     obj = (analyzed_x, analyzed_y)
                     diff_value = get_distance(self.target_robot, obj)
                     if diff_value < min_value:
