@@ -3,6 +3,7 @@ from math import cos, sin, radians
 import numpy as np
 from numpy.linalg import lstsq
 from scipy.optimize import least_squares
+import math
 
 def residuals(circle, x, y):
     # 中心(h, k)と半径r
@@ -38,9 +39,9 @@ def fit_circle_fixed_radius(x, y, r):
     return h, k
 
 def get_distance(pos1, pos2):
-    x1, y1 = pos1
-    x2, y2 = pos2
-    return ( (x1 - x2)**2 + (y1 - y2)**2 )
+    x1, y1, _ = pos1
+    x2, y2, _ = pos2
+    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
 
 class InfraSensorPositionEstimater:
     def __init__(self, b_degree, mean_max, th_variance, t_radius, t_cv):
@@ -204,21 +205,22 @@ class InfraSensorPositionEstimater:
                     if diff_value < min_value:
                         valid_result =  (analyzed_x, analyzed_y, analyzed_r)
                         min_value = diff_value
-                        self.target_robot = (analyzed_x, analyzed_y)
+                        self.target_robot = (analyzed_x, analyzed_y, analyzed_r)
                         print(f"TARGET SET: {analyzed_x}, {analyzed_y}")
             else:
                 for v in valid_results:
                     analyzed_x, analyzed_y, analyzed_r, diff_value = v
-                    obj = (analyzed_x, analyzed_y)
+                    obj = (analyzed_x, analyzed_y, 0)
                     diff_value = get_distance(self.target_robot, obj)
                     if diff_value < min_value:
                         valid_result =  (analyzed_x, analyzed_y, analyzed_r)
                         min_value = diff_value
-                        prev_robot = self.target_robot
-                        self.target_robot = (analyzed_x, analyzed_y)
-                        if get_distance(prev_robot, self.target_robot) > 0.0005:
-                            print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
             
-            return self.write_pos(valid_result)
+                prev_robot = self.target_robot
+                self.target_robot = valid_result
+                if get_distance(prev_robot, valid_result) > 0.05:
+                    print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
+
+            return self.write_pos(self.target_robot)
         else:
             return self.write_pos(None)
