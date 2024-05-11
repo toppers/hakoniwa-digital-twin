@@ -247,3 +247,28 @@ TurtleBot3 の 2DLiDARのデータから指定された半径の円柱の位置�
 5. **t_cv (チェック閾値)**
    - **説明**: 解析された円の品質を評価するための閾値です。この値は、最小二乗法でのフィットの品質（MAEや分散）を判断する際に使用され、設定値以下であれば円としての検出が有効とみなされます。
    - **用途**: 円の検出精度を制御し、高品質なデータのみを有効な検出結果として扱います。
+
+### インフラセンサのデバッグ環境
+インフラセンサをデバッグするために、TB3 LiDARのビジュアライズすると直感的な理解が可能になります。
+
+#### インストール方法
+
+```
+sudo apt install ros-foxy-turtlebot3
+```
+
+```
+sudo apt install ros-foxy-turtlebot3-bringup ros-foxy-turtlebot3-cartographer ros-foxy-turtlebot3-navigation2
+
+```
+
+#### Rviz2 起動方法
+
+```
+ros2 launch turtlebot3_bringup rviz2.launch.py
+```
+
+成功すると下図のように表示されます。
+
+![スクリーンショット 2024-05-11 9 47 51](https://github.com/toppers/hakoniwa-digital-twin/assets/164193/087500a8-1299-4d87-a680-cfeb96dda386)
+
