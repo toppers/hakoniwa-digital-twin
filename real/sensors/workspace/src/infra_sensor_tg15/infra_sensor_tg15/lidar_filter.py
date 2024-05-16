@@ -11,7 +11,7 @@ class InfraSensorLidarFilter:
         self.avg_count = avg_count
         self.data_accumulator = None
 
-def filter_ranges(self, intensities, ranges, range_min, angle_increment):
+    def filter_ranges(self, intensities, ranges, range_min, angle_increment):
         indexes = []
         degrees = []
         values = []
