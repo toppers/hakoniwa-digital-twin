@@ -117,18 +117,18 @@ class InfraSensorPositionEstimater:
             #print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
         return self.average_x, self.average_y
         
-    def get_segments(self, degrees, values, value_threshold):
+    def get_segments(self, indexes, degrees, values, value_threshold):
         segments = []
         current_segment = []
         previous_value = values[0]
 
-        for degree, value in zip(degrees, values):
+        for index, degree, value in zip(indexes, degrees, values):
             if abs(value - previous_value) > value_threshold:
                 # 連続性が途切れたら新しいセグメントを開始
                 if current_segment:
                     segments.append(current_segment)
                 current_segment = []
-            current_segment.append((degree, value))
+            current_segment.append((index, degree, value))
             previous_value = value
 
         # 最後のセグメントを追加
@@ -137,90 +137,87 @@ class InfraSensorPositionEstimater:
         
         return segments
     
-    def _scan(self, degrees, values):
-        for degree, value in zip(degrees, values):
-            if degree not in self.scan_history:
-                self.scan_history[degree] = deque(maxlen=self.mean_maxlen)
-            self.scan_history[degree].append(value)
+    def _scan(self, indexes, degrees, values):
+        for index, degree, value in zip(indexes, degrees, values):
+            if index not in self.scan_history:
+                self.scan_history[index] = deque(maxlen=self.mean_maxlen)
+            self.scan_history[index].append(value)
 
-    def _finalize_scan(self):
+    def _finalize_scan(self, degrees):
         # 収集したデータから平均値を計算
-        for degree, value_deque in self.scan_history.items():
-            self.scan_data[degree] = np.mean(value_deque)
-            print(f"Environemnt data({degree}): {self.scan_data[degree]}")
+        for index, value_deque in self.scan_history.items():
+            self.scan_data[index] = np.mean(value_deque)
+            print(f"Environemnt data({index}) deg={degrees[index]}: {self.scan_data[index]}")
         print("Environment scan completed and data averaged.")
 
-    def scan(self, degrees, values, scan_count_max = 100):
+    def scan(self, indexes, degrees, values, scan_count_max = 100):
         if self.scan_count < scan_count_max:
-            self._scan(degrees, values)
+            self._scan(indexes, degrees, values)
             self.scan_count += 1
             return False  # スキャンがまだ終了していないことを示す
         else:
             if not hasattr(self, 'finalized'):
-                self._finalize_scan()
+                self._finalize_scan(degrees)
                 self.finalized = True  # スキャン終了とデータ処理完了のフラグ
             return True  # スキャンが完了したことを示す
 
-    def is_significant_change(self, degree, value, threshold=0.2):
-        if value > 0 and abs(self.scan_data[degree] - value) > threshold:
+    def is_significant_change(self, index, degree, value, threshold=0.2): # TODO params
+        if value > 0 and abs(self.scan_data[index] - value) > threshold:
             return True
         return False
 
-    def run(self, degrees, values, scan_count_max, value_threshold=0.1):
-        if not self.scan(degrees, values, scan_count_max):
+    def run(self, indexes, degrees, values, scan_count_max, value_threshold=0.1):
+        if not self.scan(indexes, degrees, values, scan_count_max):
             print("scanning: ", self.scan_count)
             return  self.write_pos(None)
         # スキャンが完了している場合のみ以下の分析を行う
         significant_segments = []
-        if len(degrees) >= 3:
-            segments = self.get_segments(degrees, values, value_threshold)
-            for segment in segments:
-                significant_data = [(deg, val) for deg, val in segment if self.is_significant_change(deg, val)]
-                if significant_data:
-                    significant_segments.append(significant_data)
+        segments = self.get_segments(indexes, degrees, values, value_threshold)
+        for segment in segments:
+            significant_data = [(index, deg, val) for index, deg, val in segment if self.is_significant_change(index, deg, val)]
+            if significant_data:
+                significant_segments.append(significant_data)
 
-            index = 0
-            valid_results = []
-            for seg in significant_segments:
-                seg_degrees, seg_values = zip(*seg)
-                if len(seg_degrees) >= 3:
-                    analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
-                    if valid:
-                        target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
-                        valid_results.append(target_result)
-                        #for deg, val in seg:
-                        #    print(f"VALID segment[{index}] ( {deg} {val} )")
-                        #print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
-                    else:
-                        #for deg, val in seg:
-                        #    print(f"INVALID segment[{index}] ( {deg} {val} )")
-                        pass
-                index += 1
-            
-            valid_result = None
-            min_value = 100000
-            if self.target_robot is None:
-                for v in valid_results:
-                    analyzed_x, analyzed_y, analyzed_r, diff_value = v
-                    if diff_value < min_value:
-                        valid_result =  (analyzed_x, analyzed_y, analyzed_r)
-                        min_value = diff_value
-                        self.target_robot = (analyzed_x, analyzed_y, analyzed_r)
-                        print(f"TARGET SET: {analyzed_x}, {analyzed_y}")
-            else:
-                for v in valid_results:
-                    analyzed_x, analyzed_y, analyzed_r, diff_value = v
-                    obj = (analyzed_x, analyzed_y, 0)
-                    diff_value = get_distance(self.target_robot, obj)
-                    if diff_value < min_value:
-                        valid_result =  (analyzed_x, analyzed_y, analyzed_r)
-                        min_value = diff_value
-                if valid_result:
-                    prev_robot = self.target_robot
-                    self.target_robot = valid_result
-                    if get_distance(prev_robot, valid_result) > 0.05:
-                        print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
-
-            return self.write_pos(self.target_robot)
+        index = 0
+        valid_results = []
+        for seg in significant_segments:
+            seg_index, seg_degrees, seg_values = zip(*seg)
+            if len(seg_degrees) >= 3:
+                analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
+                if valid:
+                    target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
+                    valid_results.append(target_result)
+                    #for deg, val in seg:
+                    #    print(f"VALID segment[{index}] ( {deg} {val} )")
+                    #print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
+                else:
+                    #for deg, val in seg:
+                    #    print(f"INVALID segment[{index}] ( {deg} {val} )")
+                    pass
+            index += 1
+        
+        valid_result = None
+        min_value = 100000
+        if self.target_robot is None:
+            for v in valid_results:
+                analyzed_x, analyzed_y, analyzed_r, diff_value = v
+                if diff_value < min_value:
+                    valid_result =  (analyzed_x, analyzed_y, analyzed_r)
+                    min_value = diff_value
+                    self.target_robot = (analyzed_x, analyzed_y, analyzed_r)
+                    print(f"TARGET SET: {analyzed_x}, {analyzed_y}")
         else:
-            return self.write_pos(None)
+            for v in valid_results:
+                analyzed_x, analyzed_y, analyzed_r, diff_value = v
+                obj = (analyzed_x, analyzed_y, 0)
+                diff_value = get_distance(self.target_robot, obj)
+                if diff_value < min_value:
+                    valid_result =  (analyzed_x, analyzed_y, analyzed_r)
+                    min_value = diff_value
+            if valid_result:
+                prev_robot = self.target_robot
+                self.target_robot = valid_result
+                if get_distance(prev_robot, valid_result) > 0.05:
+                    print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
+
+        return self.write_pos(self.target_robot)

@@ -11,7 +11,8 @@ class InfraSensorLidarFilter:
         self.avg_count = avg_count
         self.data_accumulator = None
 
-    def filter_ranges(self, intensities, ranges, range_min, angle_increment):
+def filter_ranges(self, intensities, ranges, range_min, angle_increment):
+        indexes = []
         degrees = []
         values = []
         
@@ -27,8 +28,12 @@ class InfraSensorLidarFilter:
             # 平均値を計算（データが1つ以上あれば計算）
             if len(self.data_accumulator[i]) > 0:  
                 v_value = np.mean(self.data_accumulator[i])
-                degrees.append(deg)
-                values.append(v_value)
+            else:
+                v_value = 64.0  # デフォルト値
+
+            degrees.append(deg)
+            values.append(v_value)
+            indexes.append(i)
             deg += angle_increment  # 角度をインクリメント
         
-        return degrees, values
+        return indexes, degrees, values

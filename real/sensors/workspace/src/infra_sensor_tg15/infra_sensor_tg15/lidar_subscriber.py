@@ -40,8 +40,8 @@ class LIDARSubscriber(Node):
  
 
     def listener_callback(self, msg):
-        degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges, range_min=msg.range_min, angle_increment=msg.angle_increment)
-        x, y = self.estimater.run(degrees, values, scan_count_max=lidar_param_scan_count_max, value_threshold=lidar_param_segment_threshold)
+        indexes, degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges, range_min=msg.range_min, angle_increment=msg.angle_increment)
+        x, y = self.estimater.run(indexes, degrees, values, scan_count_max=lidar_param_scan_count_max, value_threshold=lidar_param_segment_threshold)
         twist_msg = Twist()
         twist_msg.linear.x = x
         twist_msg.linear.y = y
