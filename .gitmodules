@@ -1,3 +1,9 @@
 [submodule "bridge"]
 	path = bridge
 	url = https://github.com/toppers/hakoniwa-bridge.git
+[submodule "third-party/ydlidar_ros2_driver"]
+	path = third-party/ydlidar_ros2_driver
+	url = https://github.com/YDLIDAR/ydlidar_ros2_driver.git
+[submodule "third-party/YDLIDAR/YDLidar-SDK"]
+	path = third-party/YDLIDAR/YDLidar-SDK
+	url = https://github.com/YDLIDAR/YDLidar-SDK.git
