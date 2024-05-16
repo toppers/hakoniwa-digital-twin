@@ -24,12 +24,11 @@ class InfraSensorLidarFilter:
         for i in range(num_points):
             if ranges[i] > lidar_param_range_threshold and intensities[i] > lidar_param_intensities_threshold:
                 self.data_accumulator[i].append(ranges[i] * lidar_param_range_value_constant)
-            
-            # 平均値を計算（データが1つ以上あれば計算）
-            if len(self.data_accumulator[i]) > 0:  
+
+            if len(self.data_accumulator[i]) > 0:
                 v_value = np.mean(self.data_accumulator[i])
             else:
-                v_value = 64.0  # デフォルト値
+                v_value = 0.0  # デフォルト値を設定
 
             degrees.append(deg)
             values.append(v_value)
