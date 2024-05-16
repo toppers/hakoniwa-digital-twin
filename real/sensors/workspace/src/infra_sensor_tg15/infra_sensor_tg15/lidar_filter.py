@@ -20,6 +20,7 @@ class InfraSensorLidarFilter:
         if self.data_accumulator is None:
             self.data_accumulator = {i: deque(maxlen=self.avg_count) for i in range(num_points)}
 
+        print(f"range_min={range_min}, angle_increment={angle_increment}")
         deg = range_min
         for i in range(num_points):
             if ranges[i] > lidar_param_range_threshold and intensities[i] > lidar_param_intensities_threshold:
