@@ -6,6 +6,8 @@ from scipy.optimize import least_squares
 import math
 from .lidar_params import lidar_param_sensor_t_radius_ok_min
 from .lidar_params import lidar_param_sensor_t_radius_ok_max
+from .lidar_params import lidar_param_sensor_significant_change
+
 
 def residuals(circle, x, y):
     # 中心(h, k)と半径r
@@ -161,7 +163,7 @@ class InfraSensorPositionEstimater:
                 self.finalized = True  # スキャン終了とデータ処理完了のフラグ
             return True  # スキャンが完了したことを示す
 
-    def is_significant_change(self, index, degree, value, threshold=0.2): # TODO params
+    def is_significant_change(self, index, degree, value, threshold=lidar_param_sensor_significant_change):
         if value > 0 and abs(self.scan_data[index] - value) > threshold:
             return True
         return False

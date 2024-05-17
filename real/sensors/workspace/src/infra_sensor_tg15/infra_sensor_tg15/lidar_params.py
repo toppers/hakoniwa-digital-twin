@@ -11,4 +11,5 @@ lidar_param_sensor_t_radius = 0.1
 lidar_param_sensor_t_cv = 0.1
 lidar_param_sensor_t_radius_ok_min = 0.05
 lidar_param_sensor_t_radius_ok_max = 0.06
+lidar_param_sensor_significant_change = 0.4
 
