@@ -130,8 +130,9 @@ class InfraSensorPositionEstimater:
                 if current_segment:
                     segments.append(current_segment)
                 current_segment = []
-            current_segment.append((index, degree, value))
-            previous_value = value
+            if value > 0.0:
+                current_segment.append((index, degree, value))
+                previous_value = value
 
         # 最後のセグメントを追加
         if current_segment:
