@@ -67,8 +67,8 @@ class InfraSensorPositionEstimater:
     def analyze_circle(self, degrees, values):
         pos_x = []
         pos_y = []
-        for degree, value in zip(degrees, values):
-            radian_degree = radians(self.base_degree - degree)
+        for radian_degree, value in zip(degrees, values):
+            #radian_degree = radians(self.base_degree - degree)
             pos_x.append(value * cos(radian_degree))
             pos_y.append(value * sin(radian_degree))
         x_data = np.array(pos_x)
@@ -80,11 +80,11 @@ class InfraSensorPositionEstimater:
         is_valid_circle = mae < self.target_check_value and variance < self.target_check_value**2
         valid = is_target_radius and is_valid_circle
 
-        #if not valid and is_valid_circle and diff_value <= self.target_radius * lidar_param_sensor_t_radius_ok_max:
-        #    #print("refit: diff_value = ", diff_value)
-        #    h, k  = fit_circle_fixed_radius(x_data, y_data, self.target_radius)
-        #    r = self.target_radius
-        #    valid = True
+        if not valid and is_valid_circle and diff_value <= self.target_radius * lidar_param_sensor_t_radius_ok_max:
+            #print("refit: diff_value = ", diff_value)
+            h, k  = fit_circle_fixed_radius(x_data, y_data, self.target_radius)
+            r = self.target_radius
+            valid = True
 
         #print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
         return h, k, r, valid, diff_value
@@ -175,29 +175,32 @@ class InfraSensorPositionEstimater:
             return  self.write_pos(None)
         # スキャンが完了している場合のみ以下の分析を行う
         significant_segments = []
+        inx = 0
         segments = self.get_segments(indexes, degrees, values, value_threshold)
         for segment in segments:
+            inx += 1
             significant_data = [(index, deg, val) for index, deg, val in segment if self.is_significant_change(index, deg, val)]
             if significant_data:
                 #for i, deg, val in significant_data:
-                #    print(f"significant_data[{i}] ( {deg} {val} scan_data[{i}]={self.scan_data[i]})")                
+                #    print(f"{inx}:significant_data[{i}] ( {deg} {val} scan_data[{i}]={self.scan_data[i]})")                
                 significant_segments.append(significant_data)
 
         index = 0
         valid_results = []
         for seg in significant_segments:
             seg_index, seg_degrees, seg_values = zip(*seg)
-            if len(seg_degrees) >= 3:
+            if len(seg_degrees) >= 20:
                 analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
                 if valid:
                     target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
                     valid_results.append(target_result)
-                    for i, deg, val in seg:
-                        print(f"VALID segment[{index}] ( {deg} {val} )")
-                    print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
+                    #for i, deg, val in seg:
+                    #    print(f"VALID segment[{index}] ( {deg} {val} )")
+                    #print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
                 else:
                     #for i, deg, val in seg:
                     #    print(f"INVALID segment[{index}] ( {deg} {val} )")
+                    #print(f"InValid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r}, {diff_value})")
                     pass
             index += 1
         

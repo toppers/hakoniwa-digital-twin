@@ -9,7 +9,7 @@ lidar_param_sensor_mean_max = 10
 lidar_param_sensor_th_variance = 1.0
 lidar_param_sensor_t_radius = 0.1
 lidar_param_sensor_t_cv = 0.1
-lidar_param_sensor_t_radius_ok_min = 0.05
-lidar_param_sensor_t_radius_ok_max = 0.06
+lidar_param_sensor_t_radius_ok_min = 0.1
+lidar_param_sensor_t_radius_ok_max = 0.5
 lidar_param_sensor_significant_change = 0.1
 
