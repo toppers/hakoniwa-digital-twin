@@ -7,6 +7,7 @@ import math
 from .lidar_params import lidar_param_sensor_t_radius_ok_min
 from .lidar_params import lidar_param_sensor_t_radius_ok_max
 from .lidar_params import lidar_param_sensor_significant_change
+from .lidar_params import lidar_param_sensor_debug_distance
 
 
 def residuals(circle, x, y):
@@ -225,7 +226,7 @@ class InfraSensorPositionEstimater:
             if valid_result:
                 prev_robot = self.target_robot
                 self.target_robot = valid_result
-                if get_distance(prev_robot, valid_result) > 0.05:
+                if get_distance(prev_robot, valid_result) > lidar_param_sensor_debug_distance:
                     print(f"TARGET MOVED: {analyzed_x}, {analyzed_y}")
 
         return self.write_pos(self.target_robot)
