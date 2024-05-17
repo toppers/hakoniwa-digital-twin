@@ -125,7 +125,7 @@ class InfraSensorPositionEstimater:
         previous_value = values[0]
 
         for index, degree, value in zip(indexes, degrees, values):
-            if abs(value - previous_value) > value_threshold:
+            if value == 0.0 or abs(value - previous_value) > value_threshold:
                 # 連続性が途切れたら新しいセグメントを開始
                 if current_segment:
                     segments.append(current_segment)
