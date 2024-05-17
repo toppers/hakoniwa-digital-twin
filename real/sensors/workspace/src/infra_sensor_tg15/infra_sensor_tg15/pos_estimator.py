@@ -80,11 +80,11 @@ class InfraSensorPositionEstimater:
         is_valid_circle = mae < self.target_check_value and variance < self.target_check_value**2
         valid = is_target_radius and is_valid_circle
 
-        if not valid and is_valid_circle and diff_value <= self.target_radius * lidar_param_sensor_t_radius_ok_max:
-            #print("refit: diff_value = ", diff_value)
-            h, k  = fit_circle_fixed_radius(x_data, y_data, self.target_radius)
-            r = self.target_radius
-            valid = True
+        #if not valid and is_valid_circle and diff_value <= self.target_radius * lidar_param_sensor_t_radius_ok_max:
+        #    #print("refit: diff_value = ", diff_value)
+        #    h, k  = fit_circle_fixed_radius(x_data, y_data, self.target_radius)
+        #    r = self.target_radius
+        #    valid = True
 
         #print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
         return h, k, r, valid, diff_value
@@ -164,7 +164,7 @@ class InfraSensorPositionEstimater:
             return True  # スキャンが完了したことを示す
 
     def is_significant_change(self, index, degree, value, threshold=lidar_param_sensor_significant_change):
-        if value > 0 and abs(self.scan_data[index] - value) > threshold:
+        if value > 0 and self.scan_data[index] > 0 and abs(self.scan_data[index] - value) > threshold:
             return True
         return False
 
@@ -178,8 +178,8 @@ class InfraSensorPositionEstimater:
         for segment in segments:
             significant_data = [(index, deg, val) for index, deg, val in segment if self.is_significant_change(index, deg, val)]
             if significant_data:
-                for i, deg, val in significant_data:
-                    print(f"significant_data[{i}] ( {deg} {val} )")                
+                #for i, deg, val in significant_data:
+                #    print(f"significant_data[{i}] ( {deg} {val} scan_data[{i}]={self.scan_data[i]})")                
                 significant_segments.append(significant_data)
 
         index = 0
@@ -191,9 +191,9 @@ class InfraSensorPositionEstimater:
                 if valid:
                     target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
                     valid_results.append(target_result)
-                    #for i, deg, val in seg:
-                    #    print(f"VALID segment[{index}] ( {deg} {val} )")
-                    #print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
+                    for i, deg, val in seg:
+                        print(f"VALID segment[{index}] ( {deg} {val} )")
+                    print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
                 else:
                     #for i, deg, val in seg:
                     #    print(f"INVALID segment[{index}] ( {deg} {val} )")
