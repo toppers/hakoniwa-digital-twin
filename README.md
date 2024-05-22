@@ -2,6 +2,8 @@
 
 本リポジトリでは、バーチャル・ドローンとリアル・ロボット(TODO)が、箱庭を通して相互運用するデジタルツインのデモ環境を提供します。
 
+![image](https://github.com/toppers/hakoniwa-digital-twin/assets/164193/b73301f6-15e3-4f65-8a73-ae56d5beae63)
+
 ## デモ
 
 ### 登場物
