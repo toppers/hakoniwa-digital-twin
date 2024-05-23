@@ -123,7 +123,7 @@ class InfraSensorPositionEstimater:
             #print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
         return self.average_x, self.average_y
     
-    def get_segments(indexes, degrees, values, value_threshold, eps=0.5, min_samples=10):
+    def get_segments_old(indexes, degrees, values, value_threshold, eps=0.5, min_samples=10):
         points = np.array(list(zip(degrees, values)))
         
         # DBSCAN クラスタリングを適用
@@ -147,20 +147,23 @@ class InfraSensorPositionEstimater:
         
         return segments
 
-    def get_segments_old(self, indexes, degrees, values, value_threshold):
+    def get_segments(self, indexes, degrees, values, value_threshold, angle_threshold=(1/math.pi)):
         segments = []
         current_segment = []
         previous_value = values[0]
+        previous_degree = degrees[0]
 
         for index, degree, value in zip(indexes, degrees, values):
-            if value > 0.0 and abs(value - previous_value) > value_threshold:
-                # 連続性が途切れたら新しいセグメントを開始
-                if current_segment:
-                    segments.append(current_segment)
-                current_segment = []
             if value > 0.0:
+                # 値の変化が閾値を超えるか、角度の変化が閾値を超える場合、新しいセグメントを開始
+                if abs(value - previous_value) > value_threshold or abs(degree - previous_degree) > angle_threshold:
+                    if current_segment:
+                        segments.append(current_segment)
+                    current_segment = []
+
                 current_segment.append((index, degree, value))
                 previous_value = value
+                previous_degree = degree
 
         # 最後のセグメントを追加
         if current_segment:
