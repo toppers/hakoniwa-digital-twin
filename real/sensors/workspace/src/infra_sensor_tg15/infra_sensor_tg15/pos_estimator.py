@@ -93,6 +93,21 @@ class InfraSensorPositionEstimater:
         #print(f"Center: ({h}, {k}), Radius: {r}, MAE: {mae}, Variance: {variance}, V_radius: {is_target_radius} V_circle: {is_valid_circle}")
         return h, k, r, valid, diff_value
 
+    def analyze_center_of_mass(self, degrees, values):
+        pos_x = []
+        pos_y = []
+        for radian_degree, value in zip(degrees, values):
+            pos_x.append(value * cos(radian_degree))
+            pos_y.append(value * sin(radian_degree))
+        x_data = np.array(pos_x)
+        y_data = np.array(pos_y)
+        
+        # 重心を計算
+        center_x = np.mean(x_data)
+        center_y = np.mean(y_data)
+
+        return center_x, center_y, self.target_radius, True, True
+
     def filter_outliers(self, values):
         if len(values) < 2:
             return values
@@ -147,7 +162,7 @@ class InfraSensorPositionEstimater:
         
         return segments
 
-    def get_segments(self, indexes, degrees, values, value_threshold, angle_threshold=(1/math.pi)):
+    def get_segments(self, indexes, degrees, values, value_threshold, angle_threshold=math.radians(1)):
         segments = []
         current_segment = []
         previous_value = values[0]
@@ -225,7 +240,7 @@ class InfraSensorPositionEstimater:
             seg_index, seg_degrees, seg_values = zip(*seg)
             if len(seg_degrees) >= 20:
                 self.plotter.add_data(seg_degrees, seg_values)
-                analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
+                analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_center_of_mass(np.array(seg_degrees), np.array(seg_values))
                 if valid:
                     target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
                     valid_results.append(target_result)
