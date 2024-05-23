@@ -8,6 +8,7 @@ from .lidar_params import lidar_param_sensor_t_radius_ok_min
 from .lidar_params import lidar_param_sensor_t_radius_ok_max
 from .lidar_params import lidar_param_sensor_significant_change
 from .lidar_params import lidar_param_sensor_debug_distance
+from .lidar_plotter import LiDARPlotter
 
 
 def residuals(circle, x, y):
@@ -64,6 +65,8 @@ class InfraSensorPositionEstimater:
         self.scan_data = {}
         self.scan_count = 0
         self.target_robot = None
+        self.plotter = LiDARPlotter(max_distance=2)
+        self.plotter.show()
 
     def analyze_circle(self, degrees, values):
         pos_x = []
@@ -126,7 +129,7 @@ class InfraSensorPositionEstimater:
         previous_value = values[0]
 
         for index, degree, value in zip(indexes, degrees, values):
-            if value == 0.0 or abs(value - previous_value) > value_threshold:
+            if value > 0.0 and abs(value - previous_value) > value_threshold:
                 # 連続性が途切れたら新しいセグメントを開始
                 if current_segment:
                     segments.append(current_segment)
@@ -175,22 +178,27 @@ class InfraSensorPositionEstimater:
             print("scanning: ", self.scan_count)
             return  self.write_pos(None)
         # スキャンが完了している場合のみ以下の分析を行う
+        self.plotter.clear_data()
         significant_segments = []
         inx = 0
         segments = self.get_segments(indexes, degrees, values, value_threshold)
         for segment in segments:
+            seg_index, seg_degrees, seg_values = zip(*segment)
+            self.plotter.add_data(seg_degrees, seg_values)
             inx += 1
             significant_data = [(index, deg, val) for index, deg, val in segment if self.is_significant_change(index, deg, val)]
             if significant_data:
                 #for i, deg, val in significant_data:
                 #    print(f"{inx}:significant_data[{i}] ( {deg} {val} scan_data[{i}]={self.scan_data[i]})")                
                 significant_segments.append(significant_data)
-
+        self.plotter.add_data_done()
         index = 0
         valid_results = []
+        
         for seg in significant_segments:
             seg_index, seg_degrees, seg_values = zip(*seg)
             if len(seg_degrees) >= 20:
+                
                 analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
                 if valid:
                     target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)

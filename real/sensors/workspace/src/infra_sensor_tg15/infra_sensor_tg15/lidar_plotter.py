@@ -27,6 +27,7 @@ class LiDARPlotter(QMainWindow):
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.grid(True)
+        self.do_transaction = False
 
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
@@ -35,10 +36,12 @@ class LiDARPlotter(QMainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(100)
+        self.timer.start(200)
 
     def update_plot(self):
         with self.lock:
+            if self.do_transaction:
+                return
             self.ax.cla()
             self.ax.set_xlim(-self.max_distance, self.max_distance)
             self.ax.set_ylim(-self.max_distance, self.max_distance)
@@ -50,7 +53,7 @@ class LiDARPlotter(QMainWindow):
             for i, (angles, distances) in enumerate(self.segments):
                 x = distances * np.cos(angles)
                 y = distances * np.sin(angles)
-                self.ax.scatter(x, y, label=f'Segment {i+1}')
+                self.ax.scatter(x, y, s=1, label=f'Segment {i+1}')
             
             if self.segments:
                 self.ax.legend()
@@ -61,11 +64,16 @@ class LiDARPlotter(QMainWindow):
         with self.lock:
             self.segments.append((angles, distances))
 
+    def add_data_done(self):
+        with self.lock:
+            self.do_transaction = False
+
     def clear_data(self):
         with self.lock:
+            self.do_transaction = True
             self.segments = []
 
-    def run(self):
+    def _run(self):
         self.running = True
         threading.Thread(target=self._data_updater).start()
 
@@ -83,10 +91,10 @@ class LiDARPlotter(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    plotter = LiDARPlotter(max_distance=15)
+    plotter = LiDARPlotter(max_distance=2)
     plotter.show()
 
-    plotter.run()
+    plotter._run()
 
     try:
         sys.exit(app.exec_())

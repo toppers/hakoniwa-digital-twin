@@ -16,6 +16,9 @@ from .lidar_params import lidar_param_sensor_mean_max
 from .lidar_params import lidar_param_sensor_th_variance
 from .lidar_params import lidar_param_sensor_t_radius
 from .lidar_params import lidar_param_sensor_t_cv
+import threading
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 class LIDARSubscriber(Node):
     def __init__(self):
@@ -51,13 +54,30 @@ class LIDARSubscriber(Node):
         twist_msg.angular.z = 0.0
         self.publisher_.publish(twist_msg)
 
+def spin_node(node):
+    rclpy.spin(node)
+
 def main(args=None):
+    app = QApplication(sys.argv)
     rclpy.init(args=args)
     lidar_subscriber = LIDARSubscriber()
     lidar_subscriber.get_logger().info("InfraSensor UP")
-    rclpy.spin(lidar_subscriber)
-    lidar_subscriber.destroy_node()
-    rclpy.shutdown()
+
+    # スレッドを作成して spin を実行
+    spin_thread = threading.Thread(target=spin_node, args=(lidar_subscriber,))
+    spin_thread.start()
+
+   # PyQt5のアプリケーションを設定
+
+    # PyQt5のイベントループを実行
+    try:
+        sys.exit(app.exec_())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        rclpy.shutdown()
+        spin_thread.join()
+        lidar_subscriber.destroy_node()
 
 if __name__ == '__main__':
     main()
