@@ -9,7 +9,7 @@ from .lidar_params import lidar_param_sensor_t_radius_ok_max
 from .lidar_params import lidar_param_sensor_significant_change
 from .lidar_params import lidar_param_sensor_debug_distance
 from .lidar_plotter import LiDARPlotter
-
+from sklearn.cluster import DBSCAN
 
 def residuals(circle, x, y):
     # 中心(h, k)と半径r
@@ -122,8 +122,32 @@ class InfraSensorPositionEstimater:
             self.average_r = np.mean(filtered_r)
             #print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
         return self.average_x, self.average_y
+    
+    def get_segments(indexes, degrees, values, value_threshold, eps=0.5, min_samples=10):
+        points = np.array(list(zip(degrees, values)))
         
-    def get_segments(self, indexes, degrees, values, value_threshold):
+        # DBSCAN クラスタリングを適用
+        db = DBSCAN(eps=eps, min_samples=min_samples).fit(points)
+        labels = db.labels_
+        
+        segments = []
+        unique_labels = set(labels)
+        
+        for label in unique_labels:
+            if label == -1:
+                continue  # ノイズとして扱われるポイントは無視
+            
+            current_segment = []
+            for index, degree, value, cluster_label in zip(indexes, degrees, values, labels):
+                if cluster_label == label:
+                    current_segment.append((index, degree, value))
+            
+            if current_segment:
+                segments.append(current_segment)
+        
+        return segments
+
+    def get_segments_old(self, indexes, degrees, values, value_threshold):
         segments = []
         current_segment = []
         previous_value = values[0]
