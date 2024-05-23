@@ -183,28 +183,27 @@ class InfraSensorPositionEstimater:
         inx = 0
         segments = self.get_segments(indexes, degrees, values, value_threshold)
         for segment in segments:
-            seg_index, seg_degrees, seg_values = zip(*segment)
-            self.plotter.add_data(seg_degrees, seg_values)
+            #seg_index, seg_degrees, seg_values = zip(*segment)
+            #self.plotter.add_data(seg_degrees, seg_values)
             inx += 1
             significant_data = [(index, deg, val) for index, deg, val in segment if self.is_significant_change(index, deg, val)]
             if significant_data:
                 #for i, deg, val in significant_data:
                 #    print(f"{inx}:significant_data[{i}] ( {deg} {val} scan_data[{i}]={self.scan_data[i]})")                
                 significant_segments.append(significant_data)
-        self.plotter.add_data_done()
         index = 0
         valid_results = []
         
         for seg in significant_segments:
             seg_index, seg_degrees, seg_values = zip(*seg)
             if len(seg_degrees) >= 20:
-                
+                self.plotter.add_data(seg_degrees, seg_values)
                 analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_circle(np.array(seg_degrees), np.array(seg_values))
                 if valid:
                     target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
                     valid_results.append(target_result)
                     #for i, deg, val in seg:
-                    #    print(f"VALID segment[{index}] ( {deg} {val} )")
+                    #   print(f"VALID segment[{index}] ( {deg} {val} )")
                     #print(f"Valid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r})")
                 else:
                     #for i, deg, val in seg:
@@ -212,7 +211,8 @@ class InfraSensorPositionEstimater:
                     #print(f"InValid Circle Found: ({analyzed_x}, {analyzed_y}, {analyzed_r}, {diff_value})")
                     pass
             index += 1
-        
+        self.plotter.add_data_done()
+
         valid_result = None
         min_value = 100000
         if self.target_robot is None:

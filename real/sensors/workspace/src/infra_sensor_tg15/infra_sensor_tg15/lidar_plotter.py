@@ -11,7 +11,7 @@ class LiDARPlotter(QMainWindow):
     def __init__(self, max_distance=15):
         super().__init__()
         self.setWindowTitle('2D LiDAR Point Cloud')
-        self.setGeometry(100, 100, 800, 800)
+        self.setGeometry(50, 50, 400, 400)
 
         self.segments = []
         self.running = False

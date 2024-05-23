@@ -1,6 +1,6 @@
 lidar_param_range_threshold = 0.0
 lidar_param_intensities_threshold = 1000.0
-lidar_param_range_average_num = 1
+lidar_param_range_average_num = 5
 lidar_param_scan_count_max = 50
 lidar_param_segment_threshold = 0.1
 lidar_param_range_value_constant = 4.0
