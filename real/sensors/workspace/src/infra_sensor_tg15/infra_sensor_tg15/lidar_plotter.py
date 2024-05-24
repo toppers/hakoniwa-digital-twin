@@ -36,7 +36,7 @@ class LiDARPlotter(QMainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(200)
+        self.timer.start(20)
 
     def update_plot(self):
         with self.lock:
