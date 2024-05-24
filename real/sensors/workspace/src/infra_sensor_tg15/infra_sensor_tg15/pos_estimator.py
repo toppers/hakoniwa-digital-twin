@@ -162,7 +162,38 @@ class InfraSensorPositionEstimater:
         
         return segments
 
-    def get_segments(self, indexes, degrees, values, value_threshold, angle_threshold=math.radians(1)):
+    def get_segments(indexes, degrees, values, distance_threshold):
+        segments = []
+        current_segment = []
+        previous_value = values[0]
+        previous_degree = degrees[0]
+
+        def calculate_distance(v1, d1, v2, d2):
+            # ポイント間の距離を計算
+            x1, y1 = v1 * math.cos(d1), v1 * math.sin(d1)
+            x2, y2 = v2 * math.cos(d2), v2 * math.sin(d2)
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+        for index, degree, value in zip(indexes, degrees, values):
+            if value > 0.0:
+                distance = calculate_distance(previous_value, previous_degree, value, degree)
+                # 距離の変化が閾値を超える場合、新しいセグメントを開始
+                if distance > distance_threshold:
+                    if current_segment:
+                        segments.append(current_segment)
+                    current_segment = []
+
+                current_segment.append((index, degree, value))
+                previous_value = value
+                previous_degree = degree
+
+        # 最後のセグメントを追加
+        if current_segment:
+            segments.append(current_segment)
+
+        return segments
+
+    def get_segments_old2(self, indexes, degrees, values, value_threshold, angle_threshold=math.radians(1)):
         segments = []
         current_segment = []
         previous_value = values[0]
