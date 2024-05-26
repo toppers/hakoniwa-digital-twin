@@ -4,7 +4,16 @@ import numpy as np
 
 def plot_segments(file_path):
     # CSVファイルを読み込む
-    df = pd.read_csv(file_path, header=None, names=['Segment', 'Index', 'Degree', 'Value'])
+    df = pd.read_csv(file_path, header=None)
+    
+    # 列数を確認して列名を設定
+    if df.shape[1] == 3:
+        df.columns = ['Index', 'Degree', 'Value']
+        df['Segment'] = 0  # オリジナルデータにはセグメント番号がないため、ダミー列を追加
+    elif df.shape[1] == 4:
+        df.columns = ['Segment', 'Index', 'Degree', 'Value']
+    else:
+        raise ValueError("CSVファイルの列数が不正です。")
 
     # Degreeをラジアンに変換
     df['Degree_rad'] = df['Degree']
@@ -23,6 +32,13 @@ def plot_segments(file_path):
     plt.grid(True)
     plt.show()
 
-# ファイルパスを指定してプロット関数を呼び出す
-file_path = 'segments.csv'
-plot_segments(file_path)
+if __name__ == '__main__':
+    import argparse
+
+    # 引数を解析する
+    parser = argparse.ArgumentParser(description='Plot segments from a CSV file.')
+    parser.add_argument('file_path', type=str, help='Path to the CSV file')
+    args = parser.parse_args()
+
+    # ファイルパスを指定してプロット関数を呼び出す
+    plot_segments(args.file_path)
