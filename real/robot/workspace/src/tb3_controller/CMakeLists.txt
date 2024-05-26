@@ -24,7 +24,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 
-add_executable(hako_ros_proxy_node 
+add_executable(tb3_controller_node 
   src/tb3_controller.cpp
 )
 ament_target_dependencies(tb3_controller_node 
