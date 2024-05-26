@@ -174,9 +174,9 @@ class InfraSensorPositionEstimater:
             # セグメントデータをCSV形式で保存
             with open('segments.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
-                for segment in segments:
+                for segment_number, segment in enumerate(segments):
                     for point in segment:
-                        writer.writerow(point)
+                        writer.writerow([segment_number] + list(point))
 
         return segments
 
