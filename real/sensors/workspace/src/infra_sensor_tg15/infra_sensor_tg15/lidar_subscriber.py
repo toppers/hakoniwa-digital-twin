@@ -43,7 +43,10 @@ class LIDARSubscriber(Node):
  
 
     def listener_callback(self, msg):
-        indexes, degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges, angle_min=msg.angle_min, angle_increment=msg.angle_increment)
+        if self.estimater.is_scan_mode:
+            indexes, degrees, values = self.filter.filter_ranges_for_sacn(msg.intensities, msg.ranges, angle_min=msg.angle_min, angle_increment=msg.angle_increment)
+        else:
+            indexes, degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges, angle_min=msg.angle_min, angle_increment=msg.angle_increment)
         x, y = self.estimater.run(indexes, degrees, values, scan_count_max=lidar_param_scan_count_max, value_threshold=lidar_param_segment_threshold)
         twist_msg = Twist()
         twist_msg.linear.x = x

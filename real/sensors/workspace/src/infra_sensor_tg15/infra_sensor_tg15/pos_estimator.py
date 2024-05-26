@@ -224,6 +224,12 @@ class InfraSensorPositionEstimater:
             print(f"Environemnt data({index}) deg={degrees[index]}: {self.scan_data[index]}")
         print("Environment scan completed and data averaged.")
 
+    def is_scan_mode(self):
+        if not hasattr(self, 'finalized'):
+            return False
+        else:
+            return True
+
     def scan(self, indexes, degrees, values, scan_count_max = 100):
         if self.scan_count < scan_count_max:
             self._scan(indexes, degrees, values)
