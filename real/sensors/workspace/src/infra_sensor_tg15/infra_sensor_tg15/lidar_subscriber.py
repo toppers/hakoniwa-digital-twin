@@ -43,7 +43,7 @@ class LIDARSubscriber(Node):
  
 
     def listener_callback(self, msg):
-        if self.estimater.is_scan_mode:
+        if self.estimater.is_scan_mode():
             indexes, degrees, values = self.filter.filter_ranges_for_scan(msg.intensities, msg.ranges, angle_min=msg.angle_min, angle_increment=msg.angle_increment)
         else:
             indexes, degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges, angle_min=msg.angle_min, angle_increment=msg.angle_increment)

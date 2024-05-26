@@ -17,7 +17,7 @@ class InfraSensorLidarFilter:
         indexes = []
         degrees = []
         values = []
-        
+
         num_points = len(ranges)  # ranges配列の長さを取得
         if self.data_accumulator is None:
             self.data_accumulator = {i: deque(maxlen=self.avg_count) for i in range(num_points)}

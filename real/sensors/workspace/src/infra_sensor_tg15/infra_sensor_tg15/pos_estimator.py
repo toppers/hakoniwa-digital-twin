@@ -226,9 +226,9 @@ class InfraSensorPositionEstimater:
 
     def is_scan_mode(self):
         if not hasattr(self, 'finalized'):
-            return False
-        else:
             return True
+        else:
+            return False
 
     def scan(self, indexes, degrees, values, scan_count_max = 100):
         if self.scan_count < scan_count_max:
