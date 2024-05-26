@@ -146,6 +146,7 @@ class InfraSensorPositionEstimater:
         current_segment = []
         previous_value = values[0]
         previous_degree = degrees[0]
+        original_data = []
 
         def calculate_distance(v1, d1, v2, d2):
             # ポイント間の距離を計算
@@ -155,6 +156,7 @@ class InfraSensorPositionEstimater:
 
         for index, degree, value in zip(indexes, degrees, values):
             if value > 0.0:
+                original_data.append((index, degree, value))
                 distance = calculate_distance(previous_value, previous_degree, value, degree)
                 # 距離の変化が閾値を超える場合、新しいセグメントを開始
                 if distance > value_threshold:
@@ -177,6 +179,11 @@ class InfraSensorPositionEstimater:
                 for segment_number, segment in enumerate(segments):
                     for point in segment:
                         writer.writerow([segment_number] + list(point))
+            # オリジナルデータを保存
+            with open('original_segments.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                for point in original_data:
+                    writer.writerow(list(point))
 
         return segments
 
