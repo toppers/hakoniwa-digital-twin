@@ -233,8 +233,8 @@ class InfraSensorPositionEstimater:
         inx = 0
         segments = self.get_segments(indexes, degrees, values, value_threshold)
         for segment in segments:
-            #seg_index, seg_degrees, seg_values = zip(*segment)
-            #self.plotter.add_data(seg_degrees, seg_values)
+            seg_index, seg_degrees, seg_values = zip(*segment)
+            self.plotter.add_data(seg_degrees, seg_values)
             inx += 1
             significant_data = [(index, deg, val) for index, deg, val in segment if self.is_significant_change(index, deg, val)]
             if significant_data:
@@ -247,7 +247,7 @@ class InfraSensorPositionEstimater:
         for seg in significant_segments:
             seg_index, seg_degrees, seg_values = zip(*seg)
             if len(seg_degrees) >= lidar_param_sensor_minimum_segment_size:
-                self.plotter.add_data(seg_degrees, seg_values)
+                #self.plotter.add_data(seg_degrees, seg_values)
                 analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_center_of_mass(np.array(seg_degrees), np.array(seg_values))
                 if valid:
                     target_result = (analyzed_x, analyzed_y, analyzed_r, diff_value)
