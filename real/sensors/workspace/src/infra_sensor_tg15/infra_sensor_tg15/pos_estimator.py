@@ -4,11 +4,13 @@ import numpy as np
 from numpy.linalg import lstsq
 from scipy.optimize import least_squares
 import math
+import csv
 from .lidar_params import lidar_param_sensor_t_radius_ok_min
 from .lidar_params import lidar_param_sensor_t_radius_ok_max
 from .lidar_params import lidar_param_sensor_significant_change
 from .lidar_params import lidar_param_sensor_debug_distance
 from .lidar_params import lidar_param_sensor_minimum_segment_size
+from .lidar_params import lidar_param_sensor_dump_segments
 from .lidar_plotter import LiDARPlotter
 
 def residuals(circle, x, y):
@@ -167,6 +169,14 @@ class InfraSensorPositionEstimater:
         # 最後のセグメントを追加
         if current_segment and len(current_segment) > lidar_param_sensor_minimum_segment_size:
             segments.append(current_segment)
+
+        if lidar_param_sensor_dump_segments:
+            # セグメントデータをCSV形式で保存
+            with open('segments.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                for segment in segments:
+                    for point in segment:
+                        writer.writerow(point)
 
         return segments
 
