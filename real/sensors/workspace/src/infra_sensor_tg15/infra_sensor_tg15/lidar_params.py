@@ -14,5 +14,5 @@ lidar_param_sensor_t_radius_ok_max = 0.5
 lidar_param_sensor_significant_change = 0.1
 lidar_param_sensor_debug_distance = 0.005
 lidar_param_sensor_minimum_segment_size = 20
-lidar_param_sensor_dump_segments = True
+lidar_param_sensor_dump_segments = False
 
