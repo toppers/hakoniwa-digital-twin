@@ -8,6 +8,7 @@ from .lidar_params import lidar_param_sensor_t_radius_ok_min
 from .lidar_params import lidar_param_sensor_t_radius_ok_max
 from .lidar_params import lidar_param_sensor_significant_change
 from .lidar_params import lidar_param_sensor_debug_distance
+from .lidar_params import lidar_param_sensor_minimum_segment_size
 from .lidar_plotter import LiDARPlotter
 
 def residuals(circle, x, y):
@@ -155,7 +156,7 @@ class InfraSensorPositionEstimater:
                 distance = calculate_distance(previous_value, previous_degree, value, degree)
                 # 距離の変化が閾値を超える場合、新しいセグメントを開始
                 if distance > value_threshold:
-                    if current_segment:
+                    if current_segment and len(current_segment) > lidar_param_sensor_minimum_segment_size:
                         segments.append(current_segment)
                     current_segment = []
 
@@ -164,7 +165,7 @@ class InfraSensorPositionEstimater:
                 previous_degree = degree
 
         # 最後のセグメントを追加
-        if current_segment:
+        if current_segment and len(current_segment) > lidar_param_sensor_minimum_segment_size:
             segments.append(current_segment)
 
         return segments
@@ -245,7 +246,7 @@ class InfraSensorPositionEstimater:
         
         for seg in significant_segments:
             seg_index, seg_degrees, seg_values = zip(*seg)
-            if len(seg_degrees) >= 20:
+            if len(seg_degrees) >= lidar_param_sensor_minimum_segment_size:
                 self.plotter.add_data(seg_degrees, seg_values)
                 analyzed_y, analyzed_x, analyzed_r, valid, diff_value = self.analyze_center_of_mass(np.array(seg_degrees), np.array(seg_values))
                 if valid:
