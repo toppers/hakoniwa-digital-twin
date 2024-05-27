@@ -8,6 +8,9 @@ import threading
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtCore import QThread, pyqtSignal
+from .lidar_filter import InfraSensorLidarFilter
+from .pos_estimator import InfraSensorPositionEstimater
+from .lidar_params import *
 
 class LIDARSubscriber(Node):
     def __init__(self):
@@ -45,8 +48,8 @@ class LIDARSubscriber(Node):
             indexes, degrees, values = self.filter.filter_ranges(msg.intensities, msg.ranges, angle_min=msg.angle_min, angle_increment=msg.angle_increment)
             x, y = self.estimater.run(indexes, degrees, values, scan_count_max=lidar_param_scan_count_max, value_threshold=lidar_param_segment_threshold)
         else:
-            x = 0
-            y = 0
+            x = 0.0
+            y = 0.0
 
         twist_msg = Twist()
         twist_msg.linear.x = x
@@ -81,6 +84,7 @@ def main(args=None):
     lidar_subscriber = LIDARSubscriber()
     lidar_subscriber.get_logger().info("InfraSensor UP")
 
+    print("Now scanning environments..., please wait.")
     # スレッドを作成して spin を実行
     spin_thread = threading.Thread(target=spin_node, args=(lidar_subscriber,))
     spin_thread.start()
