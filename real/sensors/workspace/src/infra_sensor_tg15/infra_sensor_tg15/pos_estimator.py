@@ -221,7 +221,7 @@ class InfraSensorPositionEstimater:
         # 収集したデータから平均値を計算
         for index, value_deque in self.scan_history.items():
             self.scan_data[index] = np.mean(value_deque)
-            print(f"Environemnt data({index}) deg={degrees[index]}: {self.scan_data[index]}")
+            #print(f"Environemnt data({index}) deg={degrees[index]}: {self.scan_data[index]}")
         print("Environment scan completed and data averaged.")
 
     def is_scan_mode(self):
@@ -248,7 +248,7 @@ class InfraSensorPositionEstimater:
 
     def run(self, indexes, degrees, values, scan_count_max, value_threshold=0.1):
         if not self.scan(indexes, degrees, values, scan_count_max):
-            print("scanning: ", self.scan_count)
+            #print("scanning: ", self.scan_count)
             return  self.write_pos(None)
         # スキャンが完了している場合のみ以下の分析を行う
         self.plotter.clear_data()
