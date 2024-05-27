@@ -64,17 +64,19 @@ private:
         }
 
         if (state_ == Tb3ControllerState_MOVE) {
-            if (x > TARGET_POS) {
-                // 移動: 前進するための速度設定
-                twist_message.linear.x = 0.1; // 前進速度
-                twist_message.angular.z = 0.0; // 直進
-                RCLCPP_INFO(this->get_logger(), "Moving forward");
-            } else {
+            if (!baggage_touch_ || (x <= TARGET_POS)) {
                 // 停止
                 twist_message.linear.x = 0.0; // 停止
                 twist_message.angular.z = 0.0; // 直進
                 RCLCPP_INFO(this->get_logger(), "Stopping");
-                state_ = Tb3ControllerState_DONE;
+		if (baggage_touch_) {
+                	state_ = Tb3ControllerState_DONE;
+		}
+            } else {
+                // 移動: 前進するための速度設定
+                twist_message.linear.x = 0.1; // 前進速度
+                twist_message.angular.z = 0.0; // 直進
+                RCLCPP_INFO(this->get_logger(), "Moving forward");
             }
             // 速度指令を発行
             publisher_->publish(twist_message);
