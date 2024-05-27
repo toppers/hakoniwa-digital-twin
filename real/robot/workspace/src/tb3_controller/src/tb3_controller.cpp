@@ -30,9 +30,9 @@ public:
             std::bind(&Tb3ControllerNode::sensor_callback_pos, this, std::placeholders::_1));
 
         // タイマーの設定（例として500msごとにprocess_positionを呼び出す）
-        timer_ = this->create_wall_timer(
-            std::chrono::milliseconds(500),
-            std::bind(&Tb3ControllerNode::timer_callback, this));
+        //timer_ = this->create_wall_timer(
+        //    std::chrono::milliseconds(500),
+        //    std::bind(&Tb3ControllerNode::timer_callback, this));
     }
 
 private:
@@ -44,7 +44,7 @@ private:
 
     void sensor_callback_pos(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-        process_position(msg->linear.x);
+        process_position(msg->linear.y);
     }
 
     void timer_callback()
@@ -54,7 +54,7 @@ private:
         process_position(test_position);
     }
 
-    void process_position(float x)
+    void process_position(float y)
     {
         auto twist_message = geometry_msgs::msg::Twist();
         const double TARGET_POS = -1.0;
@@ -64,7 +64,7 @@ private:
         }
 
         if (state_ == Tb3ControllerState_MOVE) {
-            if (!baggage_touch_ || (x <= TARGET_POS)) {
+            if (!baggage_touch_ || (y <= TARGET_POS)) {
                 // 停止
                 twist_message.linear.x = 0.0; // 停止
                 twist_message.angular.z = 0.0; // 直進
