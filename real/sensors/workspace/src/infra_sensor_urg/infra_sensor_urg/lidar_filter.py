@@ -25,7 +25,7 @@ class InfraSensorLidarFilter:
         #print(f"ange_min={ange_min}, angle_increment={angle_increment}")
         deg = angle_min
         for i in range(num_points):
-            if ranges[i] > lidar_param_range_threshold and intensities[i] > lidar_param_intensities_threshold:
+            if ranges[i] > lidar_param_range_threshold:
                 self.data_accumulator[i].append(ranges[i] * lidar_param_range_value_constant)
 
             if len(self.data_accumulator[i]) > 0:
@@ -44,16 +44,14 @@ class InfraSensorLidarFilter:
         indexes = []
         degrees = []
         values = []
-        intensities_filtered = []
         num_points = len(ranges)  # ranges配列の長さを取得
 
         deg = angle_min
         for i in range(num_points):
-            if ranges[i] > lidar_param_range_threshold and intensities[i] > lidar_param_intensities_threshold:
+            if ranges[i] > lidar_param_range_threshold:
                 degrees.append(deg)
                 values.append(ranges[i] * lidar_param_range_value_constant)
                 indexes.append(i)
-                intensities_filtered.append(intensities[i])
             deg += angle_increment  # 角度をインクリメント
         
         if lidar_param_sensor_dump_segments:
@@ -61,7 +59,7 @@ class InfraSensorLidarFilter:
             with open('filtered_data.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(['Index', 'Degree', 'Value', 'Intensity'])
-                for index, degree, value, intensity in zip(indexes, degrees, values, intensities_filtered):
-                    writer.writerow([index, degree, value, intensity])
+                for index, degree, value in zip(indexes, degrees, values):
+                    writer.writerow([index, degree, value, 0])
 
         return indexes, degrees, values
