@@ -25,7 +25,7 @@ source /opt/ros/humble/setup.bash
 ```
 
 ```
-rosdep udpate
+sudo apt install python3-rosdep2
 ```
 
 ```
