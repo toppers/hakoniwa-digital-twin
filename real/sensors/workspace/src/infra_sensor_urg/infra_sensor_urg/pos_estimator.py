@@ -67,7 +67,7 @@ class InfraSensorPositionEstimater:
         self.scan_data = {}
         self.scan_count = 0
         self.target_robot = None
-        self.plotter = LiDARPlotter(max_distance=2)
+        self.plotter = LiDARPlotter(max_distance=4)
         self.plotter.show()
 
     def analyze_circle(self, degrees, values):
