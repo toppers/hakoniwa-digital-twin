@@ -7,6 +7,8 @@ import threading
 import sys
 from .real_time_plot import RealTimePlot
 
+global plotter
+
 class SensorChecker(Node):
     def __init__(self):
         super().__init__('sensor_checker')
@@ -25,14 +27,19 @@ class SensorChecker(Node):
         self.lock = threading.Lock()
 
     def listener_callback(self, msg):
-        pass
+        global plotter
+        print(f"len: {len(msg.ranges)}")
+        #if plotter is not None:
+        #    plotter.add_data(msg.ranges[400])
+        
 
 
 def spin_node(node):
     rclpy.spin(node)
 
 def main(args=None):
-    app = QApplication(sys.argv)
+    global plotter
+    #app = QApplication(sys.argv)
     rclpy.init(args=args)
     lidar_subscriber = SensorChecker()
     lidar_subscriber.get_logger().info("SensorChecker UP")
