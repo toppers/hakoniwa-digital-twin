@@ -10,7 +10,7 @@ class RealTimePlot:
     def update(self, frame):
         self.ax.clear()
         if len(self.data) > 10:
-            self.ax.hist(self.data, bins=20, density=True)
+            self.ax.hist(self.data, bins=10, density=True)
             self.ax.set_xlabel('Distance')
             self.ax.set_ylabel('Probability')
             self.ax.set_title('LaserScan Data Distribution')

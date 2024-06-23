@@ -99,8 +99,8 @@ class InfraSensorPositionEstimater:
         pos_x = []
         pos_y = []
         for radian_degree, value in zip(degrees, values):
-            pos_x.append(value * cos(radian_degree))
-            pos_y.append(value * sin(radian_degree))
+            pos_x.append(value * sin(radian_degree))
+            pos_y.append(value * cos(radian_degree))
         x_data = np.array(pos_x)
         y_data = np.array(pos_y)
         
@@ -138,7 +138,7 @@ class InfraSensorPositionEstimater:
             self.average_y = np.mean(filtered_y)
             self.average_r = np.mean(filtered_r)
             #print(f"( x,  y, r ): ({self.average_x}, {self.average_y}, {self.average_r} )")
-        return self.average_x, self.average_y
+        return self.average_x + 0.075, self.average_y
     
 
     def get_segments(self, indexes, degrees, values, value_threshold):

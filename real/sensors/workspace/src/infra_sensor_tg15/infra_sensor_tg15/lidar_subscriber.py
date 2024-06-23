@@ -15,14 +15,14 @@ from .lidar_params import *
 class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
-        self.publisher_ = self.create_publisher(Twist, '/RobotAvator_cmd_pos', 10)
+        self.publisher_ = self.create_publisher(Twist, '/TB3RoboAvatar_cmd_pos', 10)
         self.filter = InfraSensorLidarFilter(lidar_param_range_average_num)
         qos_profile = QoSProfile(depth=10,
                                  reliability=ReliabilityPolicy.BEST_EFFORT,
                                  durability=DurabilityPolicy.VOLATILE)
         self.subscription = self.create_subscription(
             LaserScan,
-            '/scan',
+            '/LiDARSensor2D_scan',
             self.listener_callback,
             qos_profile)
         self.estimater = InfraSensorPositionEstimater(

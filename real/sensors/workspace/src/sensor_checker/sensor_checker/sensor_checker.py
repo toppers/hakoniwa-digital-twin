@@ -19,7 +19,7 @@ class SensorChecker(Node):
             durability=DurabilityPolicy.VOLATILE)
         self.subscription = self.create_subscription(
             LaserScan,
-            '/scan',
+            '/LiDAR2D_scan',
             self.listener_callback,
             qos_profile)
         self.subscription  # prevent unused variable warning
@@ -32,7 +32,14 @@ class SensorChecker(Node):
         global plotter
         print(f"len: {len(msg.ranges)}")
         if plotter is not None:
-            plotter.add_data(msg.ranges[400])
+            plotter.add_data(msg.ranges[41])
+
+        i = 0
+        for v in msg.ranges:
+            if v > 0.1 and v < 0.2:
+                print(f"range[{i}]={v}")
+            i = i + 1
+
 
 def spin_node(node):
     rclpy.spin(node)
