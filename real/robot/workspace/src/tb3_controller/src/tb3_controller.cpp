@@ -18,15 +18,15 @@ public:
         RCLCPP_INFO(this->get_logger(), "START: tb3_controller_node");
 
         // Publisherの作成
-        publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/tb3_cmd_vel", 10);
+        publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("/TB3RoboModel_cmd_vel", 10);
 
         // Subscriberの作成
         subscription_touch_ = this->create_subscription<std_msgs::msg::Bool>(
-            "RobotAvator_baggage_sensor", 10,
+            "TB3RoboAvatar_baggage_sensor", 10,
             std::bind(&Tb3ControllerNode::sensor_callback_touch, this, std::placeholders::_1));
 
         subscription_pos_ = this->create_subscription<geometry_msgs::msg::Twist>(
-            "RobotAvator_cmd_pos", 10,
+            "TB3RoboAvatar_cmd_pos", 10,
             std::bind(&Tb3ControllerNode::sensor_callback_pos, this, std::placeholders::_1));
 
         // タイマーの設定（例として500msごとにprocess_positionを呼び出す）
@@ -38,13 +38,13 @@ public:
 private:
     void sensor_callback_touch(const std_msgs::msg::Bool::SharedPtr msg)
     {
-        RCLCPP_INFO(this->get_logger(), "Received message: %s", msg->data ? "true" : "false");
+        //RCLCPP_INFO(this->get_logger(), "Received message: %s", msg->data ? "true" : "false");
         baggage_touch_ = msg->data;
     }
 
     void sensor_callback_pos(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-        process_position(msg->linear.y);
+        process_position(msg->linear.x);
     }
 
     void timer_callback()
@@ -54,27 +54,27 @@ private:
         process_position(test_position);
     }
 
-    void process_position(float y)
+    void process_position(float x)
     {
         auto twist_message = geometry_msgs::msg::Twist();
-        const double TARGET_POS = -1.0;
+        const double TARGET_POS = 1.0;
 
         if (state_ == Tb3ControllerState_WAIT && baggage_touch_) {
             state_ = Tb3ControllerState_MOVE;
         }
 
         if (state_ == Tb3ControllerState_MOVE) {
-            if (!baggage_touch_ || (y <= TARGET_POS)) {
+            if (!baggage_touch_ || (x >= TARGET_POS)) {
                 // 停止
                 twist_message.linear.x = 0.0; // 停止
                 twist_message.angular.z = 0.0; // 直進
                 RCLCPP_INFO(this->get_logger(), "Stopping");
-		if (baggage_touch_) {
-                	state_ = Tb3ControllerState_DONE;
-		}
+                if (baggage_touch_) {
+                    state_ = Tb3ControllerState_DONE;
+                }
             } else {
                 // 移動: 前進するための速度設定
-                twist_message.linear.x = 0.1; // 前進速度
+                twist_message.linear.x = 0.2; // 前進速度
                 twist_message.angular.z = 0.0; // 直進
                 RCLCPP_INFO(this->get_logger(), "Moving forward");
             }
