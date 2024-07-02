@@ -1,6 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "std_msgs/msg/u_int32.hpp"
 
 typedef enum {
     Tb3ControllerState_WAIT = 0,
@@ -12,7 +13,7 @@ typedef enum {
     SignalState_RED = 0,
     SignalState_Yellow = 1,
     SignalState_Blue = 2,
-    Tb3ControllerState_NUM
+    SignalState_NUM
 } SignalStateType;
 
 class Tb3ControllerNode : public rclcpp::Node
@@ -31,11 +32,11 @@ public:
             "TB3RoboAvatar_baggage_sensor", 10,
             std::bind(&Tb3ControllerNode::sensor_callback_touch, this, std::placeholders::_1));
 
-        subscription_signal_ = this->create_subscription<std_msgs::msg::UInt32>(
-            "TB3RoboAvatar_cmd_pos", 10,
-            std::bind(&Tb3ControllerNode::sensor_callback_pos, this, std::placeholders::_1));
-
         ///VirtualSignal_signal_data
+        subscription_signal_ = this->create_subscription<std_msgs::msg::UInt32>(
+            "VirtualSignal_signal_data", 10,
+            std::bind(&Tb3ControllerNode::sensor_callback_signal, this, std::placeholders::_1));
+
 
         // タイマーの設定（例として500msごとにprocess_positionを呼び出す）
         //timer_ = this->create_wall_timer(
@@ -49,17 +50,17 @@ private:
         //RCLCPP_INFO(this->get_logger(), "Received message: %s", msg->data ? "true" : "false");
         baggage_touch_ = msg->data;
     }
-    void sensor_callback_touch(const std_msgs::msg::UInt32::SharedPtr msg)
+    void sensor_callback_signal(const std_msgs::msg::UInt32::SharedPtr msg)
     {
         switch (msg->data) {
-            0:
+            case 0:
                 signal_state_ = SignalState_RED;
                 break;
-            1:
+            case 1:
                 signal_state_ = SignalState_Yellow;
                 break;
             default:
-                signal_state_ = Signal_state_Blue;
+                signal_state_ = SignalState_Blue;
                 break;
         }
         RCLCPP_INFO(this->get_logger(), "Received Signal message: %d", signal_state_);
@@ -78,9 +79,11 @@ private:
             process_position(test_position);
         }
         else {
+            auto twist_message = geometry_msgs::msg::Twist();
             // 停止
             twist_message.linear.x = 0.0; // 停止
             twist_message.angular.z = 0.0; // 直進
+            publisher_->publish(twist_message);
         }
     }
 
