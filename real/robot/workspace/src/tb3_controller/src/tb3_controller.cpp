@@ -8,6 +8,12 @@ typedef enum {
     Tb3ControllerState_DONE,
     Tb3ControllerState_NUM
 } Tb3ControllerStateType;
+typedef enum {
+    SignalState_RED = 0,
+    SignalState_Yellow = 1,
+    SignalState_Blue = 2,
+    Tb3ControllerState_NUM
+} SignalStateType;
 
 class Tb3ControllerNode : public rclcpp::Node
 {
@@ -25,9 +31,11 @@ public:
             "TB3RoboAvatar_baggage_sensor", 10,
             std::bind(&Tb3ControllerNode::sensor_callback_touch, this, std::placeholders::_1));
 
-        subscription_pos_ = this->create_subscription<geometry_msgs::msg::Twist>(
+        subscription_signal_ = this->create_subscription<std_msgs::msg::UInt32>(
             "TB3RoboAvatar_cmd_pos", 10,
             std::bind(&Tb3ControllerNode::sensor_callback_pos, this, std::placeholders::_1));
+
+        ///VirtualSignal_signal_data
 
         // タイマーの設定（例として500msごとにprocess_positionを呼び出す）
         //timer_ = this->create_wall_timer(
@@ -41,6 +49,21 @@ private:
         //RCLCPP_INFO(this->get_logger(), "Received message: %s", msg->data ? "true" : "false");
         baggage_touch_ = msg->data;
     }
+    void sensor_callback_touch(const std_msgs::msg::UInt32::SharedPtr msg)
+    {
+        switch (msg->data) {
+            0:
+                signal_state_ = SignalState_RED;
+                break;
+            1:
+                signal_state_ = SignalState_Yellow;
+                break;
+            default:
+                signal_state_ = Signal_state_Blue;
+                break;
+        }
+        RCLCPP_INFO(this->get_logger(), "Received Signal message: %d", signal_state_);
+    }
 
     void sensor_callback_pos(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
@@ -51,13 +74,20 @@ private:
     {
         // テスト用の定期呼び出し
         float test_position = 0.0;  // テスト用の位置
-        process_position(test_position);
+        if (signal_state_ == SignalState_Blue) {
+            process_position(test_position);
+        }
+        else {
+            // 停止
+            twist_message.linear.x = 0.0; // 停止
+            twist_message.angular.z = 0.0; // 直進
+        }
     }
 
     void process_position(float x)
     {
         auto twist_message = geometry_msgs::msg::Twist();
-        const double TARGET_POS = 1.0;
+        const double TARGET_POS = 2.0;
 
         if (state_ == Tb3ControllerState_WAIT && baggage_touch_) {
             state_ = Tb3ControllerState_MOVE;
@@ -86,9 +116,11 @@ private:
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_touch_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscription_pos_;
+    rclcpp::Subscription<std_msgs::msg::UInt32>::SharedPtr subscription_signal_;
     rclcpp::TimerBase::SharedPtr timer_;
     Tb3ControllerStateType state_;
     bool baggage_touch_;
+    SignalStateType signal_state_;
 };
 
 int main(int argc, char *argv[])
