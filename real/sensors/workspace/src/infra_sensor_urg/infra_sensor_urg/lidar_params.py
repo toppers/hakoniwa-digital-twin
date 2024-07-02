@@ -15,4 +15,7 @@ lidar_param_sensor_significant_change = 0.1
 lidar_param_sensor_debug_distance = 0.005
 lidar_param_sensor_minimum_segment_size = 10
 lidar_param_sensor_dump_segments = False
+ros_topic_name_scan = '/LiDARSensor2D_scan'
+ros_topic_name_imu = '/TB3RoboModel_imu'
+
 
