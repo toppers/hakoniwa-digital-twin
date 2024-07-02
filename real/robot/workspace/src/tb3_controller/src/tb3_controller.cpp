@@ -38,10 +38,9 @@ public:
             std::bind(&Tb3ControllerNode::sensor_callback_signal, this, std::placeholders::_1));
 
 
-        // タイマーの設定（例として500msごとにprocess_positionを呼び出す）
-        //timer_ = this->create_wall_timer(
-        //    std::chrono::milliseconds(500),
-        //    std::bind(&Tb3ControllerNode::timer_callback, this));
+        subscription_pos_ = this->create_subscription<geometry_msgs::msg::Twist>(
+            "TB3RoboAvatar_cmd_pos", 10,
+            std::bind(&Tb3ControllerNode::sensor_callback_pos, this, std::placeholders::_1));
     }
 
 private:
@@ -63,29 +62,35 @@ private:
                 signal_state_ = SignalState_Blue;
                 break;
         }
-        RCLCPP_INFO(this->get_logger(), "Received Signal message: %d", signal_state_);
+        //RCLCPP_INFO(this->get_logger(), "Received Signal message: %d", signal_state_);
     }
-
+    void stop_motor()
+    {
+        auto twist_message = geometry_msgs::msg::Twist();
+        // 停止
+        twist_message.linear.x = 0.0; // 停止
+        twist_message.angular.z = 0.0; // 直進
+        publisher_->publish(twist_message);
+    }
     void sensor_callback_pos(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-        process_position(msg->linear.x);
-    }
+        float pos = msg->linear.x;
 
-    void timer_callback()
-    {
-        // テスト用の定期呼び出し
-        float test_position = 0.0;  // テスト用の位置
-        if (signal_state_ == SignalState_Blue) {
-            process_position(test_position);
+        if (pos >= 0.5 && pos <= 0.8) { //before cross road
+            if (signal_state_ == SignalState_Blue) {
+                //RCLCPP_INFO(this->get_logger(), "BLUE");
+                process_position(pos);
+            }
+            else {
+                //RCLCPP_INFO(this->get_logger(), "RED: %d", signal_state_);
+                stop_motor();
+            }
         }
         else {
-            auto twist_message = geometry_msgs::msg::Twist();
-            // 停止
-            twist_message.linear.x = 0.0; // 停止
-            twist_message.angular.z = 0.0; // 直進
-            publisher_->publish(twist_message);
+            process_position(pos);
         }
     }
+
 
     void process_position(float x)
     {
