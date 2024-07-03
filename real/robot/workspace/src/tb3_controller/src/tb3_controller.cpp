@@ -149,8 +149,20 @@ private:
     void sensor_callback_pos(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
         float pos = msg->linear.x;
+        bool need_signal_control = false;
 
-        if (pos >= 0.5 && pos <= 0.8) { //before cross road
+        if (state_ == Tb3ControllerState_MOVE) {
+            if (pos >= 0.5 && pos <= 0.8) { //before cross road
+                need_signal_control = true;
+            }
+        }
+        else if (state_ == Tb3ControllerState_BACK) {
+            if (pos >= 1.3 && pos <= 1.8) { //before cross road
+                need_signal_control = true;
+            }
+        }
+
+        if (need_signal_control) {
             if (signal_state_ == SignalState_Blue) {
                 //RCLCPP_INFO(this->get_logger(), "BLUE");
                 process_position(pos);
