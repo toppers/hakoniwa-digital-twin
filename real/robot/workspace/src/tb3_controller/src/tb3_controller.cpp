@@ -8,6 +8,7 @@ typedef enum {
     Tb3ControllerState_WAIT = 0,
     Tb3ControllerState_MOVE,
     Tb3ControllerState_DONE,
+    Tb3ControllerState_BACK,
     Tb3ControllerState_NUM
 } Tb3ControllerStateType;
 typedef enum {
@@ -18,6 +19,7 @@ typedef enum {
 } SignalStateType;
 static const std::string ros_topic_name_cmd_vel = "/TB3RoboModel_cmd_vel";
 static const std::string ros_topic_name_imu = "/TB3RoboModel_imu";
+#define MOTOR_POWER 0.2
 #define ANGULAR_MIN -0.1
 #define ANGULAR_MAX 0.1
 #include <cmath>
@@ -178,7 +180,7 @@ private:
         twist_message.angular.z = angular_z;
 
         // デバッグ用出力
-        std::cout << "Target Yaw: " << target_yaw << ", Current Yaw: " << current_yaw << ", Angular Z: " << angular_z << std::endl;
+        //std::cout << "Target Yaw: " << target_yaw << ", Current Yaw: " << current_yaw << ", Angular Z: " << angular_z << std::endl;
     }
     void process_position(float x)
     {
@@ -188,8 +190,26 @@ private:
         if (state_ == Tb3ControllerState_WAIT && baggage_touch_) {
             state_ = Tb3ControllerState_MOVE;
         }
+        else if (state_ == Tb3ControllerState_DONE && !baggage_touch_) {
+            state_ = Tb3ControllerState_BACK;
+        }
 
-        if (state_ == Tb3ControllerState_MOVE) {
+        if (state_ == Tb3ControllerState_BACK) {
+            if (x <= 0.5) {
+                // 停止
+                twist_message.linear.x = 0.0; // 停止
+                RCLCPP_INFO(this->get_logger(), "Waiting mode");
+                state_ = Tb3ControllerState_WAIT;
+            } else {
+                // 移動: 前進するための速度設定
+                twist_message.linear.x =  -MOTOR_POWER;
+                RCLCPP_INFO(this->get_logger(), "Moving backward");
+            }
+            process_rotation(0, current_yaw_, twist_message);//TODO
+            // 速度指令を発行
+            publisher_->publish(twist_message);
+        }
+        else if (state_ == Tb3ControllerState_MOVE) {
             if (!baggage_touch_ || (x >= TARGET_POS)) {
                 // 停止
                 twist_message.linear.x = 0.0; // 停止
@@ -199,7 +219,7 @@ private:
                 }
             } else {
                 // 移動: 前進するための速度設定
-                twist_message.linear.x = 0.2; // 前進速度
+                twist_message.linear.x =  MOTOR_POWER; // 前進速度
                 RCLCPP_INFO(this->get_logger(), "Moving forward");
             }
             process_rotation(0, current_yaw_, twist_message);//TODO
