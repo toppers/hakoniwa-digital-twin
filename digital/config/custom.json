@@ -68,6 +68,17 @@
         }
       ],
       "shm_pdu_writers": [
+        {
+          "type": "sensor_msgs/Imu",
+          "org_name": "imu",
+          "name": "TB3RoboModel_imu",
+          "class_name": "Hakoniwa.PluggableAsset.Communication.Pdu.Raw.RawPduWriter",
+          "conv_class_name": "Hakoniwa.PluggableAsset.Communication.Pdu.Raw.RawPduWriterConverter",
+          "channel_id": 2,
+          "pdu_size": 456,
+          "write_cycle": 10,
+          "method_type": "SHM"
+        }
       ]
     },
     {
