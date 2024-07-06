@@ -69,8 +69,8 @@ class LIDARSubscriber(Node):
             ros_topic_name_scan = '/LiDARSensor2D_scan'
             ros_topic_name_imu = '/TB3RoboModel_imu'
         else:
-            ros_topic_name_scan = '/scan'
-            ros_topic_name_imu = '/imu'
+            ros_topic_name_scan = '/tb3_scan'
+            ros_topic_name_imu = '/tb3_imu'
         print('act_mode: ', act_mode)
         self.angle_x = 0.0
         self.angle_y = 0.0

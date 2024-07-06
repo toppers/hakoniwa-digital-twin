@@ -58,8 +58,8 @@ public:
         std::string act_mode = this->get_parameter("act_mode").as_string();
 
         // act_modeに基づいてトピック名を切り替える
-        std::string ros_topic_name_cmd_vel = "/cmd_vel";
-        std::string ros_topic_name_imu = "/imu";
+        std::string ros_topic_name_cmd_vel = "/tb3_cmd_vel";
+        std::string ros_topic_name_imu = "/tb3_imu";
         if (act_mode == "sim") {
             ros_topic_name_cmd_vel = "/TB3RoboModel_cmd_vel";
             ros_topic_name_imu = "/TB3RoboModel_imu";
