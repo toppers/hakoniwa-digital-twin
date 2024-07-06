@@ -17,9 +17,9 @@ typedef enum {
     SignalState_Blue = 2,
     SignalState_NUM
 } SignalStateType;
-#define MOTOR_POWER 0.2
-#define ANGULAR_MIN -0.1
-#define ANGULAR_MAX 0.1
+static float MOTOR_POWER = 0.2;
+static float ANGULAR_MIN = -0.1;
+static float ANGULAR_MAX = 0.1;
 #include <cmath>
 
 class PID
@@ -63,6 +63,11 @@ public:
         if (act_mode == "sim") {
             ros_topic_name_cmd_vel = "/TB3RoboModel_cmd_vel";
             ros_topic_name_imu = "/TB3RoboModel_imu";
+        }
+        else {
+            MOTOR_POWER = 0.05;
+            ANGULAR_MIN = -0.01;
+            ANGULAR_MIN = 0.01;
         }
         
         RCLCPP_INFO(this->get_logger(), "START: tb3_controller_node: %s", act_mode.c_str());
