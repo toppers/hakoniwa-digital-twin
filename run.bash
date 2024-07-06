@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ $# -ne 1 ]
+then
+    echo "Usage: $0 {real|sim}"
+    exit 1
+fi
+
+ACT_MODE=$1
+CUSTOM_JSON=`pwd`/digital/config/${ACT_MODE}/custom.json
+
 HAKONIWA_PX4SIM_PATH=../hakoniwa-px4sim/hakoniwa
 HAKONIWA_SHMPROXY_PATH=bridge/virtual
 HAKONIWA_VREAL_PATH=../hakoniwa-unity-drone-model
@@ -51,7 +60,7 @@ function activate_shmproxy()
 {
     CURR_DIR=`pwd`
     cd $HAKONIWA_SHMPROXY_PATH
-    ./cmake-build/shm-proxy/shm-proxy ShmProxy ../../digital/config/custom.json 20 &
+    ./cmake-build/shm-proxy/shm-proxy ShmProxy ${CUSTOM_JSON} 20 &
     HAKO_SHMPROXY_PID=$!
     cd $CURR_DIR
 }
@@ -66,8 +75,11 @@ function activate_vreal()
 
 activate_px4sim
 
-sleep 1
-activate_vreal
+if [ "${ACT_MODE}" = "sim" ]
+then
+    sleep 1
+    activate_vreal
+fi
 
 sleep 1
 activate_shmproxy
