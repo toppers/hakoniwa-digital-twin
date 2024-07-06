@@ -17,8 +17,6 @@ typedef enum {
     SignalState_Blue = 2,
     SignalState_NUM
 } SignalStateType;
-static const std::string ros_topic_name_cmd_vel = "/TB3RoboModel_cmd_vel";
-static const std::string ros_topic_name_imu = "/TB3RoboModel_imu";
 #define MOTOR_POWER 0.2
 #define ANGULAR_MIN -0.1
 #define ANGULAR_MAX 0.1
@@ -55,7 +53,19 @@ public:
         : Node("tb3_controller_node"), state_(Tb3ControllerState_WAIT), baggage_touch_(false),
          pid_controller_(1.0, 0.0, 0.1)
     {
-        RCLCPP_INFO(this->get_logger(), "START: tb3_controller_node");
+        // パラメータを宣言し、デフォルト値を設定
+        this->declare_parameter<std::string>("act_mode", "sim");
+        std::string act_mode = this->get_parameter("act_mode").as_string();
+
+        // act_modeに基づいてトピック名を切り替える
+        std::string ros_topic_name_cmd_vel = "/cmd_vel";
+        std::string ros_topic_name_imu = "/imu";
+        if (act_mode == "sim") {
+            ros_topic_name_cmd_vel = "/TB3RoboModel_cmd_vel";
+            ros_topic_name_imu = "/TB3RoboModel_imu";
+        }
+        
+        RCLCPP_INFO(this->get_logger(), "START: tb3_controller_node: %s", act_mode.c_str());
 
         // Publisherの作成
         publisher_ = this->create_publisher<geometry_msgs::msg::Twist>(ros_topic_name_cmd_vel, 10);
