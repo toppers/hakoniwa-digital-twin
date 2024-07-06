@@ -62,6 +62,16 @@ def quaternion_from_euler(roll, pitch, yaw):
 class LIDARSubscriber(Node):
     def __init__(self):
         super().__init__('lidar_subscriber')
+
+        self.declare_parameter('act_mode', 'sim')
+        act_mode = self.get_parameter('act_mode').get_parameter_value().string_value
+        if act_mode == 'sim':
+            ros_topic_name_scan = '/LiDARSensor2D_scan'
+            ros_topic_name_imu = '/TB3RoboModel_imu'
+        else:
+            ros_topic_name_scan = '/scan'
+            ros_topic_name_imu = '/imu'
+        print('act_mode: ', act_mode)
         self.angle_x = 0.0
         self.angle_y = 0.0
         self.angle_z = 0.0
