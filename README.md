@@ -220,7 +220,7 @@ https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instr
 5. [URGセンサを起動する](real/sensors/drivers/Hokuyo/urg/README.md#ros2ノードを起動する)
 5. [Infra Sensorを起動する](#InfraSensorを起動する)
 6. [ロボット制御プログラムを起動する](#ロボット制御プログラムを起動する)
-7. バーチャル・ドローンのオペレーションを開始する
+7. [バーチャル・ドローンのデモオペレーションを開始する](#バーチャル・ドローンのデモオペレーションを開始する)
 
 なお、「箱庭ドローンシミュレータ」と「ShmProxy」は、以下の方法で起動できます。
 
@@ -353,6 +353,21 @@ ros2 run tb3_controller tb3_controller_node --ros-args -p act_mode:=real
 ```
 [INFO] [1720399525.556355826] [tb3_controller_node]: START: tb3_controller_node: real
 ```
+# バーチャル・ドローンのデモオペレーションを開始する
+
+1. ARアプリケーションを起動する
+2. [箱庭のPythonアプリを実行する](#箱庭のPythonアプリを実行する)
+
+## 箱庭のPythonアプリを実行する
+
+```
+cd hakoniwa-px4sim/drone_api/sample
+```
+
+```
+python3.12 twin.py custom-twin.json
+```
+
 
 ## プログラム構成
 
@@ -364,71 +379,4 @@ ros2 run tb3_controller tb3_controller_node --ros-args -p act_mode:=real
   * バーチャル側のソースコード一式を管理
 * bridge
   * 箱庭ブリッジ（サブモジュールとして管理）
-
-## インフラセンサ
-
-### 仕様
-
-![infra sensor spec](images/infra_sensor_spec.png)
-
-* 測定可能範囲：
-  * 半径10cmの場合：
-    * -0.4m <= X <= 0.4m
-    * -0.4m <= Y <= 0.4m
-
-### 位置推定方法
-
-TurtleBot3 の 2DLiDARのデータから指定された半径の円柱の位置を推定します(下図)。
-
-![position estimation process](images/position_estimation_process.png)
-
-### パラメータ
-
-インフラセンサモジュールのパラメータは、`InfraSensorPositionEstimater`のコンストラクタで与えます。
-
-### パラメータ
-
-1. **b_degree (基準角度)**
-   - **説明**: センサーの基準となる角度を設定します。この角度を基点として、センサーが計測したデータの相対角度が計算されます。
-   - **用途**: センサーの向きや配置に応じた基準角の設定に使います。
-
-2. **mean_max (平均化最大数)**
-   - **説明**: セグメントやスキャンデータを保持するためのキューの最大長を指定します。この値は、データの平均化や過去データの参照に影響します。
-   - **用途**: データの平滑化やノイズ除去に影響し、平均化するデータポイントの数を制御します。
-
-3. **th_variance (分散閾値)**
-   - **説明**: 推定されたデータポイントはデータポイントは、mean_maxだけ記録します。最終的な推定結果は、これらの記録に対して、平均値を求め、th_varianceよりも大きな値は除外します。
-   - **用途**: センサーデータから異常値やノイズを除去する際に使用され、データのクリーニング効率を向上させます。
-
-4. **t_radius (ターゲット半径)**
-   - **説明**: 検出対象となる円の半径の目標値です。この値に基づいて、計算された半径がこの目標値にどれだけ近いかを評価します。
-   - **用途**: 特定の半径を持つ物体を検出する際に使用され、例えば特定のサイズの円形オブジェクトのみを識別するために利用します。
-
-5. **t_cv (チェック閾値)**
-   - **説明**: 解析された円の品質を評価するための閾値です。この値は、最小二乗法でのフィットの品質（MAEや分散）を判断する際に使用され、設定値以下であれば円としての検出が有効とみなされます。
-   - **用途**: 円の検出精度を制御し、高品質なデータのみを有効な検出結果として扱います。
-
-### インフラセンサのデバッグ環境
-インフラセンサをデバッグするために、TB3 LiDARのビジュアライズすると直感的な理解が可能になります。
-
-#### インストール方法
-
-```
-sudo apt install ros-foxy-turtlebot3
-```
-
-```
-sudo apt install ros-foxy-turtlebot3-bringup ros-foxy-turtlebot3-cartographer ros-foxy-turtlebot3-navigation2
-
-```
-
-#### Rviz2 起動方法
-
-```
-ros2 launch turtlebot3_bringup rviz2.launch.py
-```
-
-成功すると下図のように表示されます。
-
-![スクリーンショット 2024-05-11 9 47 51](https://github.com/toppers/hakoniwa-digital-twin/assets/164193/087500a8-1299-4d87-a680-cfeb96dda386)
 
