@@ -1,6 +1,12 @@
-# 注意事項
+# TB3 プログラムにパッチを適用する
 
-Ubuntu側のファイアウォールの設定:
+以下のファイルを、[real/robot/tb3/robot.launch.py](robot.launch.py)に置き換えてください。
+
+* turtlebot3_ws/src/turtlebot3/turtlebot3_bringup/launch/robot.launch.py 
+
+TB3のROSトピック名がインフラセンサーのものと重複するため、接頭辞 `tb3_` をつける修正です。
+
+# Ubuntu側のファイアウォールの設定
 
 ```
 状態: アクティブ

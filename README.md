@@ -68,29 +68,61 @@
 
 ![architecture](images/digital-twin-demo-arch.png)
 
+なお、アーキテクチャ上、リアル側は仮想テスト向けに差し替えることが可能です。
+
 ## 動作環境
 
 * バーチャル側
   * MacOS
-* リアル側
+* リアル側（実機向け）
   * RosProxy: Ubuntu(ROS2)
-  * Infra Sensor: HOKUYO URG-04LX-UG01
-  * Real Robot: TB3 & Raspberry Pi3(ROS2)
+  * infra_sensor_urg: ロボットの位置推定プログラム
+  * tb3_controller: ロボット制御プログラム
+  * urg_node2: HOKUYO URG-04LX-UG01
+  * Real TB3 Robot: TB3 & Raspberry Pi3(ROS2)
+
+なお、リアル側をシミュレータとしたい場合は、Ubuntu側の構成は以下の通りとなります。
+
+* リアル側（仮想テスト向け）
+  * RosProxy: Ubuntu(ROS2)
+  * infra_sensor_urg: ロボットの位置推定プログラム
+  * tb3_controller: ロボット制御プログラム
+  * virtual urg sensor: Unityで実現
+  * Virtual TB3 Robot: Unityで実現
 
 ## インストール手順
 
 ### コンフィグファイルの作成
 
 箱庭のコンフィグファイルである custom.jsonは、リアルとバーチャルとで共有しますので、それぞれにコピー配置してください。
-custom.jsonは、箱庭ドローンシミュレータのUnityエディタ上で、`Generate`を実行することで作成できます。
+共有対象モジュールは、ShmProxy と HakoRosProxy です。
+
+custom.json は、以下の２パターンあります。
+
+*  リアル側（実機向け）
+*  リアル側（仮想テスト向け）
+
+custom.jsonは、箱庭ドローンシミュレータのUnityエディタ上で、`Generate`を実行することで作成できますが、以下の理由から、そのまま使用することはできません。
+
+1. リアル側に配信するデータとしては、必要最小限のもので良いため、不要なものは削除する必要がある
+2. リアル側をシミュレータとする場合は、リアル側のTB3のROSトピック情報を追加する必要がある
 
 ### リアル側
 
 リアル側では、以下の対応が必要となります。
 
+* [Raspberry Pi on TB3 にパッチ適用する](real/robot/tb3/README.md)
+* [Ubunt PC に URG センサドライバをインストール](real/sensors/drivers/Hokuyo/urg/README.md)
 * [Ubuntu PC に RosProxyをインストール](#UbuntuPCにRosProxyをインストール)
-* [TB3にインフラセンサモジュールをインストール](#TB3にインフラセンサモジュールをインストール)
-* ロボット：TODO
+* [Ubuntu PC にインフラセンサモジュールをインストール](#UbuntuPCにインフラセンサモジュールをインストール)
+* [Ubuntu PC にロボット制御プログラムをインストール](#UbuntuPCにロボット制御プログラムをインストール)
+
+なお、リアル側のテスト用のUnityアプリは以下にあります。
+
+* https://github.com/toppers/hakoniwa-digital-twin/releases/edit/digital-twin-real-model
+
+hakoniwa-unity-drone-model 直下で、`TwinReal.zip` を解凍してください。
+
 
 #### UbuntuPCにRosProxyをインストール
 
@@ -104,11 +136,11 @@ git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
 cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu
 ```
 
-RosProxyのインストール：
+RosProxyのインストール：custom.jsonは、digital/config 配下のものを利用してください。
 
 https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instructions
 
-#### TB3にインフラセンサモジュールをインストール
+#### UbuntuPCにインフラセンサモジュールをインストール
 
 リポジトリのクローン：
 ```
@@ -117,18 +149,41 @@ git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
 
 ディレクトリの移動：
 ```
-cd hakoniwa-digital-twin/bridge/real/sensors
+cd hakoniwa-digital-twin/bridge/real/sensors/workspace
 ```
 
 ビルド：
 ```
-colcon build --packages-select infra_sensor_2dlidar
+colcon build --packages-select infra_sensor_urg
 ```
 
 成功するとこうなります。
 ```
-Starting >>> infra_sensor_2dlidar
-Finished <<< infra_sensor_2dlidar [4.47s]   
+Starting >>> infra_sensor_urg
+Finished <<< infra_sensor_urg [4.47s]   
+```
+
+# UbuntuPCにロボット制御プログラムをインストール
+
+リポジトリのクローン：
+```
+git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
+```
+
+ディレクトリの移動：
+```
+cd hakoniwa-digital-twin/bridge/real/robot/workspace/
+```
+
+ビルド：
+```
+colcon build --packages-select tb3_controller
+```
+
+成功するとこうなります。
+```
+Starting >>> tb3_controller
+Finished <<< tb3_controller [4.47s]   
 ```
 
 ### バーチャル側
@@ -151,7 +206,7 @@ git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
 cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu
 ```
 
-ShmProxyのインストール：
+ShmProxyのインストール：custom.jsonは、digital/config 配下のものを利用してください。
 
 https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instructions
 
@@ -161,10 +216,21 @@ https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instr
 1. 箱庭ドローンシミュレータを起動する
 2. [ShmProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#shmproxy)
 3. [RosProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#rosproxy)
-4. [TB3のROSノードを起動する](TB3のROSノードを起動する)
+4. [TB3のROSノードを起動する](#TB3のROSノードを起動する)
+5. [URGセンサを起動する](real/sensors/drivers/Hokuyo/urg/README.md#ros2ノードを起動する)
 5. [Infra Sensorを起動する](#InfraSensorを起動する)
-6. リアル・ロボットを起動する
+6. [ロボット制御プログラムを起動する](#ロボット制御プログラムを起動する)
 7. バーチャル・ドローンのオペレーションを開始する
+
+なお、「箱庭ドローンシミュレータ」と「ShmProxy」は、以下の方法で起動できます。
+
+```
+cd hakoniwa-digital-twin
+```
+
+```
+bash run.bash real
+```
 
 ### TB3のROSノードを起動する
 
@@ -185,30 +251,82 @@ ros2 launch turtlebot3_bringup robot.launch.py
 ### InfraSensorを起動する
 
 ```
+cd hakoniwa-digital-twin/real/sensors/workspace
+```
+
+```
 source install/setup.bash 
 ```
 
 ```
-ros2 run infra_sensor_2dlidar lidar_subscriber
+ros2 run infra_sensor_urg lidar_subscriber --ros-args -p act_mode:=real
 ```
+
+※テスト向けの場合は、act_mode:=simを指定してください。
+
 
 成功するとこうなります。
 ```
-[INFO] [1715210973.115290281] [lidar_subscriber]: InfraSensor UP
+act_mode:  real
+[INFO] [1720398553.685691839] [lidar_subscriber]: InfraSensor UP
+Now scanning environments..., please wait.
 ```
 
-ubuntu PC 側で、以下のコマンドを発行して、`RobotAvator_cmd_pos`が見えれば成功です。
+成功すると以下の画面が出力されます。
+
+![image](images/infra-sensor-start.png)
+
+環境データを認識するために３０秒程度お待ちください。成功すると以下のように環境を認識し、セグメント化したデータ表示されます。
+
+![image](images/infra-sensor-env.png)
+
+この状態で、ロボットを配置してください。
+
+配置完了したら、以下の端末上で、`s` を入力してエンターキーを押下しましょう。
 
 ```
-ros2 topic list
+Enter command (s: scan mode, p: processing mode): Environment scan completed and data averaged.
 ```
 
-事項結果：
+成功すると、ロボットのセグメントが表示されます。
+
+![image](images/infra-sensor-trace.png)
+
+
+ロボットの位置推定結果は、`RobotAvator_cmd_pos`で配信されます。以下の要領で確認できます。
+
 ```
-/RobotAvator_cmd_pos
-/parameter_events
-/rosout
-/scan
+ros2 topic echo /TB3RoboAvatar_cmd_pos
+```
+
+```
+linear:
+  x: 0.2749041557341515
+  y: 0.02060769323128149
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: 0.0
+---
+```
+
+# ロボット制御プログラムを起動する
+
+```
+cd hakoniwa-digital-twin/real/robot/workspace
+```
+
+```
+ros2 run tb3_controller tb3_controller_node --ros-args -p act_mode:=real
+```
+
+※テスト向けの場合は、act_mode:=simを指定してください。
+
+成功すると、こうなります。
+
+```
+[INFO] [1720399525.556355826] [tb3_controller_node]: START: tb3_controller_node: real
 ```
 
 ## プログラム構成
