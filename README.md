@@ -224,6 +224,10 @@ https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instr
 
 なお、「箱庭ドローンシミュレータ」と「ShmProxy」は、以下の方法で起動できます。
 
+Unityエディタで、`Scenes/DigitalTwin/Hakoniwa` を開きます。
+
+ターミナル上で以下のコマンドを実行します。
+
 ```
 cd hakoniwa-digital-twin
 ```
@@ -231,6 +235,27 @@ cd hakoniwa-digital-twin
 ```
 bash run.bash real
 ```
+
+実行すると、以下のメッセージが出力されますので、30秒以内に Unity エディタのシミュレーションを開始してください(STARTボタンをクリック)。
+
+```
+Press ENTER to stop...
+INFO: Zenoh Opening session...
+Robot: TB3RoboAvatar, PduWriter: TB3RoboAvatar_cmd_pos
+channel_id: 0 pdu_size: 72
+INFO: asset(ShmProxy) is registered.
+INFO: Zenoh subscriber: TB3RoboAvatar_cmd_pos
+INFO: subscriber topic name = TB3RoboAvatar_cmd_pos
+INFO: Zenoh publisher: TB3RoboAvatar_baggage_sensor
+INFO: publisher topic name = TB3RoboAvatar_baggage_sensor
+INFO: Zenoh publisher: VirtualSignal_signal_data
+INFO: publisher topic name = VirtualSignal_signal_data
+WAIT START
+```
+
+成功するとこうなります。
+
+![image](images/unity-haoniwa.png)
 
 ### TB3のROSノードを起動する
 
