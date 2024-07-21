@@ -253,20 +253,20 @@ https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instr
 git clone --recursive https://github.com/toppers/hakoniwa-unity-drone-model.git
 ```
 
-AR向けのUnityパッケージのインストール：
-https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#package-manager
-
 ### ARアプリの作成
 
 #### Hakoniwa Scene の設定
-
-Hakoniwa Scene を選択します。
 
 Hierarchyビューの `Assets/Scenes/DigitalTwin/Hakoniwa` を選択し、インスペクタービューの Server_ipaddr に Mac のIPアドレスを設定します。 Client_ipaddr には、iphone の IPアドレスを設定します。
 
 #### ARアプリのビルド
 
-Build Settings で以下の３シーンを含めてください。
+最初に、[AR向けのUnityパッケージ](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#package-manager)をインストールをください。
+
+
+次に、Build Settings でビルドします。
+
+ビルドの際には、以下の３シーンを含めてください。
 
 * ARSetting
 * ARAdjust
@@ -274,13 +274,11 @@ Build Settings で以下の３シーンを含めてください。
 
 ![image](images/ar-apl-build.png)
 
-ビルド手順：
-https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#unity%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86
+箱庭ARアプリの[ビルド手順](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#unity%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86)を参照ください。
 
 #### ARアプリのインストール
 
-インストール手順：
-https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#iphone-%E3%81%B8%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86
+箱庭ARアプリの[インストール手順](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#iphone-%E3%81%B8%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86)を参照ください。
 
 
 ## 実行手順
