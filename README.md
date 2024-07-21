@@ -1,6 +1,6 @@
 # hakoniwa-digital-twin
 
-本リポジトリでは、バーチャル・ドローンとリアル・ロボット(TODO)が、箱庭を通して相互運用するデジタルツインのデモ環境を提供します。
+本リポジトリでは、バーチャル・ドローンとリアル・ロボット(TB3)が、箱庭を通して相互運用するデジタルツインのデモ環境を提供します。
 
 ![image](images/real-virtual-fusion.png)
 
@@ -89,6 +89,10 @@
   * tb3_controller: ロボット制御プログラム
   * virtual urg sensor: Unityで実現
   * Virtual TB3 Robot: Unityで実現
+
+## 物理構成
+
+![image](images/physical-diagram.png)
 
 ## インストール手順
 
