@@ -80,6 +80,7 @@
     * ソフトウェア
       * Unity Editor
       * 箱庭ドローンシミュレータ
+      * ShmProxy
 * リアル側（実機向け）
   * Linux PC
     * Ubuntu 22.04.4 LTS
@@ -89,13 +90,16 @@
       * RosProxy: Ubuntu(ROS2)
       * infra_sensor_urg: ロボットの位置推定プログラム
       * tb3_controller: ロボット制御プログラム
+      * urg_node2：URGセンサドライバ
   * LiDAR
     * urg_node2: HOKUYO URG-04LX-UG01
   * リアルロボット
     * TurtleBot3
     * Raspberry Pi3(ROS2)
+      * TB3パッチ適用が必要
 * AR側
   * iPhone XS
+    * 箱庭ARアプリ
   * iPhone 設置スタンド
 * Wi-Fiルーター
 * 有線LAN（２本）
@@ -143,7 +147,7 @@ custom.jsonは、箱庭ドローンシミュレータのUnityエディタ上で�
 リアル側では、以下の対応が必要となります。
 
 * [Raspberry Pi on TB3 にパッチ適用する](real/robot/tb3/README.md)
-* [Ubunt PC に URG センサドライバをインストール](real/sensors/drivers/Hokuyo/urg/README.md)
+* [Ubuntu PC に URG センサドライバをインストール](real/sensors/drivers/Hokuyo/urg/README.md)
 * [Ubuntu PC に RosProxyをインストール](#UbuntuPCにRosProxyをインストール)
 * [Ubuntu PC にインフラセンサモジュールをインストール](#UbuntuPCにインフラセンサモジュールをインストール)
 * [Ubuntu PC にロボット制御プログラムをインストール](#UbuntuPCにロボット制御プログラムをインストール)
@@ -240,6 +244,43 @@ cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu
 ShmProxyのインストール：custom.jsonは、digital/config 配下のものを利用してください。
 
 https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#installation-instructions
+
+
+## 箱庭ARアプリ側
+
+リポジトリのクローン：
+```
+git clone --recursive https://github.com/toppers/hakoniwa-unity-drone-model.git
+```
+
+AR向けのUnityパッケージのインストール：
+https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#package-manager
+
+### ARアプリの作成
+
+#### Hakoniwa Scene の設定
+
+Hakoniwa Scene を選択します。
+
+Hierarchyビューの `Assets/Scenes/DigitalTwin/Hakoniwa` を選択し、インスペクタービューの Server_ipaddr に Mac のIPアドレスを設定します。 Client_ipaddr には、iphone の IPアドレスを設定します。
+
+#### ARアプリのビルド
+
+Build Settings で以下の３シーンを含めてください。
+
+* ARSetting
+* ARAdjust
+* ARDevice
+
+![image](images/ar-apl-build.png)
+
+ビルド手順：
+https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#unity%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86
+
+#### ARアプリのインストール
+
+インストール手順：
+https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#iphone-%E3%81%B8%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86
 
 
 ## 実行手順
