@@ -73,13 +73,31 @@
 ## 動作環境
 
 * バーチャル側
-  * MacOS
+  * MacPC
+    * MacBook Pro(2)
+    * チップ：Apple M2 Pro
+    * Memory: 32GB
 * リアル側（実機向け）
-  * RosProxy: Ubuntu(ROS2)
-  * infra_sensor_urg: ロボットの位置推定プログラム
-  * tb3_controller: ロボット制御プログラム
-  * urg_node2: HOKUYO URG-04LX-UG01
-  * Real TB3 Robot: TB3 & Raspberry Pi3(ROS2)
+  * Linux PC
+    * Ubuntu 22.04.4 LTS
+    * CPU: Intel(R) Core(TM) i7-10610U CPU @ 1.80GHz
+    * Memory: 16GB
+    * ソフトウェア：
+      * RosProxy: Ubuntu(ROS2)
+      * infra_sensor_urg: ロボットの位置推定プログラム
+      * tb3_controller: ロボット制御プログラム
+  * LiDAR
+    * urg_node2: HOKUYO URG-04LX-UG01
+  * リアルロボット
+    * TurtleBot3
+    * Raspberry Pi3(ROS2)
+* AR側
+  * iPhone XS
+  * iPhone 設置スタンド
+* Wi-Fiルーター
+* 有線LAN（２本）
+* PS4コントローラおよび接続USBケーブル（オプション）
+* デモフィールド：ダンボールで構築(1m x 2.5m 0.3m)
 
 なお、リアル側をシミュレータとしたい場合は、Ubuntu側の構成は以下の通りとなります。
 
