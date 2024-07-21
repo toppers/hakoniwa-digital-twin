@@ -77,6 +77,9 @@
     * MacBook Pro(2)
     * チップ：Apple M2 Pro
     * Memory: 32GB
+    * ソフトウェア
+      * Unity Editor
+      * 箱庭ドローンシミュレータ
 * リアル側（実機向け）
   * Linux PC
     * Ubuntu 22.04.4 LTS
@@ -108,9 +111,15 @@
   * virtual urg sensor: Unityで実現
   * Virtual TB3 Robot: Unityで実現
 
+## 構成
+
 ## 物理構成
 
 ![image](images/physical-diagram.png)
+
+## ソフトウェア構成
+
+![image](images/software-diagram.png)
 
 ## インストール手順
 
