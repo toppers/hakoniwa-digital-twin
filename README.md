@@ -281,8 +281,16 @@ Hierarchyビューの `Assets/Scenes/DigitalTwin/Hakoniwa` を選択し、イン
 箱庭ARアプリの[インストール手順](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#iphone-%E3%81%B8%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86)を参照ください。
 
 
+#### ARアプリの位置調整
+
+以下の解説資料を参照ください。
+
+https://www.docswell.com/s/kanetugu2015/K4QXM1-hakoniwa-unity-ar
+
+
 ## 実行手順
 
+0. ARアプリを起動する
 1. 箱庭ドローンシミュレータを起動する
 2. [ShmProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#shmproxy)
 3. [RosProxyを起動する](https://github.com/toppers/hakoniwa-bridge?tab=readme-ov-file#rosproxy)
