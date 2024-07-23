@@ -184,7 +184,7 @@ git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
 
 ディレクトリの移動：
 ```
-cd hakoniwa-digital-twin/bridge/real/sensors/workspace
+cd hakoniwa-digital-twin/real/sensors/workspace
 ```
 
 ビルド：
@@ -207,7 +207,7 @@ git clone --recursive https://github.com/toppers/hakoniwa-digital-twin.git
 
 ディレクトリの移動：
 ```
-cd hakoniwa-digital-twin/bridge/real/robot/workspace/
+cd hakoniwa-digital-twin/real/robot/workspace/
 ```
 
 ビルド：
