@@ -232,7 +232,7 @@ private:
                 if (baggage_touch_ || (x >= 0.5)) {
                     // 停止
                     twist_message.linear.x = 0.0; // 停止
-                    RCLCPP_INFO(this->get_logger(), "Stopping");
+                    RCLCPP_INFO(this->get_logger(), "BACK: Stopping");
                 }
                 else {
                     // 移動: 前進するための速度設定
@@ -248,7 +248,7 @@ private:
             if (!baggage_touch_ || (x >= TARGET_POS)) {
                 // 停止
                 twist_message.linear.x = 0.0; // 停止
-                RCLCPP_INFO(this->get_logger(), "Stopping");
+                RCLCPP_INFO(this->get_logger(), "MOVE: Stopping");
                 if (baggage_touch_) {
                     state_ = Tb3ControllerState_DONE;
                 }
