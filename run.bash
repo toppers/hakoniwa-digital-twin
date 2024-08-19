@@ -111,6 +111,9 @@ sleep 1
 activate_shmproxy
 sleep 1
 
+echo "Start Unity"
+read
+
 echo "START ADJUST INITIAL POSITION"
 adjust_initial_pos
 

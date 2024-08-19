@@ -229,7 +229,7 @@ private:
                 RCLCPP_INFO(this->get_logger(), "Waiting mode");
                 state_ = Tb3ControllerState_WAIT;
             } else {
-                if (baggage_touch_ || (x >= 0.5)) {
+                if (baggage_touch_) {
                     // 停止
                     twist_message.linear.x = 0.0; // 停止
                     RCLCPP_INFO(this->get_logger(), "BACK: Stopping");
