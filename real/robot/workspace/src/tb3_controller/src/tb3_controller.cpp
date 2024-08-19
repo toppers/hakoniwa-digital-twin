@@ -171,12 +171,13 @@ private:
                 need_signal_control = true;
             }
         }
+#if 0
         else if (state_ == Tb3ControllerState_BACK) {
             if (pos >= 1.3 && pos <= 1.8) { //before cross road
                 need_signal_control = true;
             }
         }
-
+#endif
         if (need_signal_control) {
             if (signal_state_ == SignalState_Blue) {
                 //RCLCPP_INFO(this->get_logger(), "BLUE");
@@ -212,7 +213,7 @@ private:
     void process_position(float x)
     {
         auto twist_message = geometry_msgs::msg::Twist();
-        const double TARGET_POS = 2.0;
+        const double TARGET_POS = 1.5;
 
         if (state_ == Tb3ControllerState_WAIT && baggage_touch_) {
             state_ = Tb3ControllerState_MOVE;
@@ -228,9 +229,16 @@ private:
                 RCLCPP_INFO(this->get_logger(), "Waiting mode");
                 state_ = Tb3ControllerState_WAIT;
             } else {
-                // 移動: 前進するための速度設定
-                twist_message.linear.x =  -MOTOR_POWER;
-                RCLCPP_INFO(this->get_logger(), "Moving backward");
+                if (baggage_touch_ || (x >= 0.5)) {
+                    // 停止
+                    twist_message.linear.x = 0.0; // 停止
+                    RCLCPP_INFO(this->get_logger(), "Stopping");
+                }
+                else {
+                    // 移動: 前進するための速度設定
+                    twist_message.linear.x =  -MOTOR_POWER;
+                    RCLCPP_INFO(this->get_logger(), "Moving backward");
+                }
             }
             process_rotation(0, current_yaw_, twist_message);//TODO
             // 速度指令を発行
