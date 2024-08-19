@@ -7,8 +7,10 @@ then
 fi
 
 ACT_MODE=$1
+AR_DEVICE_IPADDR="192.168.2.105"
 CUSTOM_JSON=`pwd`/digital/config/${ACT_MODE}/custom.json
 
+HAKONIWA_RADIO_CTRL_PATH=../hakoniwa-px4sim/drone_api/sample
 HAKONIWA_PX4SIM_PATH=../hakoniwa-px4sim/hakoniwa
 HAKONIWA_SHMPROXY_PATH=bridge/virtual
 HAKONIWA_VREAL_PATH=../hakoniwa-unity-drone-model
@@ -38,7 +40,9 @@ function kill_process()
 
     exit 0
 }
-
+function signal_handler() {
+    echo "SIGINT"
+}
 trap signal_handler SIGINT
 
 export PYTHONPATH="/usr/local/lib/hakoniwa:$PYTHONPATH"
@@ -72,6 +76,28 @@ function activate_vreal()
     HAKO_VREAL_PID=$!
     cd $CURR_DIR
 }
+function adjust_initial_pos()
+{
+    CURR_DIR=`pwd`
+    cd $HAKONIWA_VREAL_PATH
+    python utils/xr_origin_tuning.py --input joystick ./utils/xr_config.json ${AR_DEVICE_IPADDR}:38528
+    cd $CURR_DIR
+}
+
+function radio_control()
+{
+    CURR_DIR=`pwd`
+    cd $HAKONIWA_RADIO_CTRL_PATH
+    if [ -f ~/myenv/bin/activate  ]
+    then
+        source ~/myenv/bin/activate
+        PYTHON_BIN=python3.12
+    else
+        PYTHON_BIN=python
+    fi
+    ${PYTHON_BIN} rc.py ../../../hakoniwa-unity-drone-model/custom.json
+    cd $CURR_DIR
+}
 
 activate_px4sim
 
@@ -83,6 +109,13 @@ fi
 
 sleep 1
 activate_shmproxy
+sleep 1
+
+echo "START ADJUST INITIAL POSITION"
+adjust_initial_pos
+
+echo "START RADIO CONTROL"
+radio_control
 
 echo "START"
 while true; do
