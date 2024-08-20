@@ -4,15 +4,14 @@ TOPIC="/TB3RoboAvatar_baggage_sensor"
 TIMEOUT=10
 LAST_RECEIVED=$(date +%s)
 
-# トピックをサブスクライブし、メッセージを受信するたびに時間を更新する
-ros2 topic echo $TOPIC --once | while read -r line
-do
-  LAST_RECEIVED=$(date +%s)
-done &
-
 # タイムアウト監視
 while true
 do
+  ros2 topic echo $TOPIC --once > /dev/null
+  if [ $? -eq 0 ]
+  then
+    LAST_RECEIVED=$(date +%s)
+  fi
   CURRENT_TIME=$(date +%s)
   ELAPSED=$((CURRENT_TIME - LAST_RECEIVED))
 
@@ -22,5 +21,5 @@ do
     echo "OK: data received on $TOPIC in $TIMEOUT seconds"
   fi
 
-  sleep 3
+  sleep 1
 done
