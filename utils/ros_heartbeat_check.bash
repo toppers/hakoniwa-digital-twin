@@ -7,7 +7,8 @@ LAST_RECEIVED=$(date +%s)
 # タイムアウト監視
 while true
 do
-  ros2 topic echo $TOPIC --once > /dev/null
+  #echo "START CHECK"
+  timeout 3 ros2 topic echo $TOPIC --once 
   if [ $? -eq 0 ]
   then
     LAST_RECEIVED=$(date +%s)
@@ -21,5 +22,5 @@ do
     echo "OK: data received on $TOPIC in $TIMEOUT seconds"
   fi
 
-  sleep 1
+  sleep 3
 done
