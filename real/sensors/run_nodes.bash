@@ -5,7 +5,7 @@ source /opt/ros/humble/setup.bash
 # クリーンアップ用の関数を定義
 cleanup() {
     echo "Stopping nodes..."
-    kill $URG_NODE_PID $LIDAR_SUB_PID
+    kill $URG_NODE_PID
 }
 
 # スクリプト終了時にクリーンアップを実行
@@ -21,8 +21,7 @@ sleep 5
 
 # infra_sensor_urgの起動
 echo "Starting infra_sensor_urg..."
-ros2 run infra_sensor_urg lidar_subscriber --ros-args -p act_mode:=real &
-LIDAR_SUB_PID=$!
+ros2 run infra_sensor_urg lidar_subscriber --ros-args -p act_mode:=real 
 
 # 全てのプロセスが終了するのを待つ
-wait $URG_NODE_PID $LIDAR_SUB_PID
+wait $URG_NODE_PID
