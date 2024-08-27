@@ -75,12 +75,21 @@ function activate_vreal()
     HAKO_VREAL_PID=$!
     cd $CURR_DIR
 }
+function activate_ardemo()
+{
+    CURR_DIR=`pwd`
+    cd $HAKONIWA_VREAL_PATH
+    bash plugin/activate_app.bash ar-demo &
+    HAKO_VREAL_PID=$!
+    cd $CURR_DIR
+}
 function adjust_initial_pos()
 {
     CONFIG_PATH=`pwd`/digital/config/ar/xr_config.json
-    AR_DEVICE_IPADDR=`jq '.server_url' digital/config/ar/xr_config.json`
+    AR_DEVICE_IPADDR=`jq -r '.server_url' digital/config/ar/xr_config.json | awk -F: '{print $1}'`
     CURR_DIR=`pwd`
     cd $HAKONIWA_VREAL_PATH
+    echo "access: ${AR_DEVICE_IPADDR}:38528"
     python ${HAKONIWA_VREAL_PATH}/utils/xr_origin_tuning.py --input joystick ${CONFIG_PATH} ${AR_DEVICE_IPADDR}:38528
     cd $CURR_DIR
 }
@@ -109,14 +118,18 @@ then
 fi
 
 sleep 1
-if [ "${ACT_MODE}" != "ar" ]
+if [ "${ACT_MODE}" == "ar" ]
 then
+    activate_ardemo
+    #echo "Start Unity"
+    #read
+else
     activate_shmproxy
     sleep 1
+    echo "Start Unity"
+    read
 fi
 
-echo "Start Unity"
-read
 
 echo "START ADJUST INITIAL POSITION"
 adjust_initial_pos
