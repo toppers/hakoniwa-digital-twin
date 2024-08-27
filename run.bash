@@ -2,12 +2,11 @@
 
 if [ $# -ne 1 ]
 then
-    echo "Usage: $0 {real|sim}"
+    echo "Usage: $0 {real|sim|ar}"
     exit 1
 fi
 
 ACT_MODE=$1
-AR_DEVICE_IPADDR="192.168.2.105"
 CUSTOM_JSON=`pwd`/digital/config/${ACT_MODE}/custom.json
 
 HAKONIWA_RADIO_CTRL_PATH=../hakoniwa-px4sim/drone_api/sample
@@ -78,6 +77,7 @@ function activate_vreal()
 }
 function adjust_initial_pos()
 {
+    AR_DEVICE_IPADDR=`jq '.server_url' digital/config/ar/xr_config.json`
     CURR_DIR=`pwd`
     cd $HAKONIWA_VREAL_PATH
     python utils/xr_origin_tuning.py --input joystick ./utils/xr_config.json ${AR_DEVICE_IPADDR}:38528
@@ -108,8 +108,11 @@ then
 fi
 
 sleep 1
-activate_shmproxy
-sleep 1
+if [ "${ACT_MODE}" != "ar" ]
+then
+    activate_shmproxy
+    sleep 1
+fi
 
 echo "Start Unity"
 read
