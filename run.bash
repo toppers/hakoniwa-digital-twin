@@ -77,10 +77,11 @@ function activate_vreal()
 }
 function adjust_initial_pos()
 {
+    CONFIG_PATH=`pwd`/digital/config/ar/xr_config.json
     AR_DEVICE_IPADDR=`jq '.server_url' digital/config/ar/xr_config.json`
     CURR_DIR=`pwd`
     cd $HAKONIWA_VREAL_PATH
-    python utils/xr_origin_tuning.py --input joystick ./utils/xr_config.json ${AR_DEVICE_IPADDR}:38528
+    python ${HAKONIWA_VREAL_PATH}/utils/xr_origin_tuning.py --input joystick ${CONFIG_PATH} ${AR_DEVICE_IPADDR}:38528
     cd $CURR_DIR
 }
 
