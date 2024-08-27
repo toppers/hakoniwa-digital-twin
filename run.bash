@@ -55,7 +55,12 @@ function activate_px4sim()
 {
     CURR_DIR=`pwd`
     cd $HAKONIWA_PX4SIM_PATH
-    bash drone-app.bash ../../hakoniwa-unity-drone-model config/api_twin &
+    if [ $ACT_MODE = "ar" ]
+    then
+        bash drone-app.bash ../../hakoniwa-unity-drone-model config/rc &
+    else
+        bash drone-app.bash ../../hakoniwa-unity-drone-model config/api_twin &
+    fi
     HAKO_PX4SIM_PID=$!
     cd $CURR_DIR
 }
