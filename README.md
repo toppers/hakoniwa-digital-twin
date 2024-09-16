@@ -257,29 +257,23 @@ git clone --recursive https://github.com/toppers/hakoniwa-unity-drone-model.git
 
 #### Hakoniwa Scene の設定
 
-Hierarchyビューの `Assets/Scenes/DigitalTwin/Hakoniwa` を選択し、インスペクタービューの Server_ipaddr に Mac のIPアドレスを設定します。 Client_ipaddr には、iphone の IPアドレスを設定します。
+Hierarchyビューの `Assets/Scenes/DigitalTwin/Hakoniwa` を選択します。
 
 #### ARアプリのビルド
 
-最初に、[AR向けのUnityパッケージ](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#package-manager)をインストールをください。
+箱庭ARアプリの[ビルド手順](https://github.com/toppers/hakoniwa-unity-drone-model/blob/main/README-quest3.md)を参照ください。
 
+なお、ビルド済みのもを以下で公開しています。
 
-次に、Build Settings でビルドします。
+https://github.com/toppers/hakoniwa-unity-drone-model/releases
 
-ビルドの際には、以下の３シーンを含めてください。
-
-* ARSetting
-* ARAdjust
-* ARDevice
-
-![image](images/ar-apl-build.png)
-
-箱庭ARアプリの[ビルド手順](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#unity%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86)を参照ください。
+対象ファイル：model-ros.apk
 
 #### ARアプリのインストール
 
-箱庭ARアプリの[インストール手順](https://github.com/toppers/hakoniwa-unity-simasset-plugin/blob/4c17de8d3c59818bcc6032d13410980b7f747698/README-ar.md#iphone-%E3%81%B8%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86)を参照ください。
+箱庭ARアプリの[インストール手順](https://github.com/toppers/hakoniwa-unity-drone-model/blob/main/README-quest3.md#quest3%E5%90%91%E3%81%91%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89)を参照ください。
 
+Unityシーンは、`Scenes/DigitalTwin/Quest3` を使います。
 
 #### ARアプリの位置調整
 
