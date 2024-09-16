@@ -279,8 +279,9 @@ Unityシーンは、`Scenes/DigitalTwin/Quest3` を使います。
 
 以下の解説資料を参照ください。
 
-https://www.docswell.com/s/kanetugu2015/K4QXM1-hakoniwa-unity-ar
-
+- https://www.docswell.com/s/kanetugu2015/K4QXM1-hakoniwa-unity-ar
+- https://github.com/toppers/hakoniwa-unity-drone-model/blob/main/README-quest3-drone.md
+- https://www.docswell.com/s/kanetugu2015/K4VVJD-hakoniwa-drone-ar-op
 
 ## 実行手順
 

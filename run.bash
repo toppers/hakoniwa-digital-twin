@@ -55,12 +55,7 @@ function activate_px4sim()
 {
     CURR_DIR=`pwd`
     cd $HAKONIWA_PX4SIM_PATH
-    if [ $ACT_MODE = "ar" ]
-    then
-        bash drone-app.bash ../../hakoniwa-unity-drone-model config/rc &
-    else
-        bash drone-app.bash ../../hakoniwa-unity-drone-model config/api_twin &
-    fi
+    bash drone-app.bash ../../hakoniwa-unity-drone-model/ar-demo-ros/ config/rc &
     HAKO_PX4SIM_PID=$!
     cd $CURR_DIR
 }
@@ -84,7 +79,7 @@ function activate_ardemo()
 {
     CURR_DIR=`pwd`
     cd $HAKONIWA_VREAL_PATH
-    bash plugin/activate_app.bash ar-demo &
+    bash plugin/activate_app.bash ar-demo-ros &
     HAKO_VREAL_PID=$!
     cd $CURR_DIR
 }
@@ -110,7 +105,7 @@ function radio_control()
     else
         PYTHON_BIN=python
     fi
-    ${PYTHON_BIN} rc.py ../../../hakoniwa-unity-drone-model/custom.json
+    ${PYTHON_BIN} rc.py ../../../hakoniwa-unity-drone-model/ar-demo-ros/custom.json
     cd $CURR_DIR
 }
 
@@ -125,6 +120,7 @@ fi
 sleep 1
 if [ "${ACT_MODE}" == "ar" ]
 then
+    activate_shmproxy
     activate_ardemo
     #echo "Start Unity"
     #read
@@ -135,6 +131,11 @@ else
     read
 fi
 
+sleep 5
+
+hako-cmd start
+
+sleep 1
 
 echo "START ADJUST INITIAL POSITION"
 adjust_initial_pos
@@ -142,12 +143,4 @@ adjust_initial_pos
 echo "START RADIO CONTROL"
 radio_control
 
-echo "START"
-while true; do
-    echo "Press ENTER to stop..."
-    read input
-    if [ -z "$input" ]; then
-        kill_process
-        break
-    fi
-done
+kill_process
