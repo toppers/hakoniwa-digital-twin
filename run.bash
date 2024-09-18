@@ -78,6 +78,8 @@ function activate_vreal()
 function activate_ardemo()
 {
     CURR_DIR=`pwd`
+    CONFIG_PATH=`pwd`/digital/config/ar/xr_config.json 
+    cp $CONFIG_PATH $HAKONIWA_VREAL_PATH/ar-demo-ros/
     cd $HAKONIWA_VREAL_PATH
     bash plugin/activate_app.bash ar-demo-ros &
     HAKO_VREAL_PID=$!
