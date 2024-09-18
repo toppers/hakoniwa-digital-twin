@@ -98,12 +98,11 @@
     * Raspberry Pi3(ROS2)
       * TB3パッチ適用が必要
 * AR側
-  * iPhone XS
-    * 箱庭ARアプリ
-  * iPhone 設置スタンド
+  * QUEST3
+    * QUEST3向け箱庭ARアプリ
 * Wi-Fiルーター
-* 有線LAN（２本）
-* PS4コントローラおよび接続USBケーブル（オプション）
+* 有線LAN（３本）
+* PS4コントローラおよび接続USBケーブル
 * デモフィールド：ダンボールで構築(1m x 2.5m 0.3m)
 
 なお、リアル側をシミュレータとしたい場合は、Ubuntu側の構成は以下の通りとなります。
@@ -438,7 +437,7 @@ cd hakoniwa-px4sim/drone_api/sample
 ```
 
 ```
-python3.12 twin.py custom-twin.json
+python3.12 rc.py ../hakoniwa-unity-drone-model/custom.json 
 ```
 
 
