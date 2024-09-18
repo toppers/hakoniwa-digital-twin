@@ -452,3 +452,82 @@ python3.12 rc.py ../hakoniwa-unity-drone-model/custom.json
 * bridge
   * 箱庭ブリッジ（サブモジュールとして管理）
 
+## 番外編
+
+デモ向けに簡単にオペレーション実行したい場合は、以下の手順で実施できます。
+
+### TB3
+
+TB3の電源を起動し、TB3のトピックが出力されるのを待ちます。
+
+```
+ros2 topic list
+```
+
+`tb3_cmd_vel` のトピックが見えたら成功です。
+
+TB3の頭に被せる帽子を外します。
+
+### Linuxマシン
+
+URGとインフラセンサを起動します。
+
+```bash
+hakoniwa-digital-twin/real/sensors
+```
+
+```
+bash run.bash
+```
+
+センサが環境認識完了した、TB3の頭に帽子を被せて、`s` ボタンを押下します。
+
+ROSProxyを起動します。
+
+```
+cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu/workspace
+```
+
+```
+ros2 run hako_ros_proxy hako_ros_proxy_node
+```
+
+### QUEST3
+
+箱庭ARアプリを起動します。
+
+
+### MacPC
+
+```
+cd hakoniwa-digital-twin
+```
+
+```
+bash run.bash ar
+```
+
+位置調整モードになるので、PS4コントローラでドローンの初期位置を決めます。
+
+初期位置が決まったら、○ボタンを押下してください。
+
+１秒後くらいで、×ボタンを押すと、PS4コントローラでドローンを操作できます。
+
+ドローンを５０cmほど浮上させます。
+
+### Linux
+
+TB3ロボット制御プログラムを起動します。
+
+```
+cd hakoniwa-digital-twin/real/robot
+```
+
+```
+bash run.bash
+```
+
+### PS4コントローラ
+
+荷物をロボットの上に置いてください
+
