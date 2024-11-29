@@ -504,7 +504,7 @@ cd hakoniwa-digital-twin
 ```
 
 ```
-bash run.bash ar
+bash run.bash
 ```
 
 位置調整モードになるので、PS4コントローラでドローンの初期位置を決めます。
