@@ -10,3 +10,9 @@
 [submodule "third-party/Hokuyo-aut/urg_node2"]
 	path = third-party/Hokuyo-aut/urg_node2
 	url = https://github.com/Hokuyo-aut/urg_node2.git
+[submodule "webserver"]
+	path = webserver
+	url = https://github.com/toppers/hakoniwa-webserver.git
+[submodule "ar-bridge"]
+	path = ar-bridge
+	url = https://github.com/toppers/hakoniwa-ar-bridge.git

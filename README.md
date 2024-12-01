@@ -262,11 +262,11 @@ Hierarchyビューの `Assets/Scenes/DigitalTwin/Hakoniwa` を選択します。
 
 箱庭ARアプリの[ビルド手順](https://github.com/toppers/hakoniwa-unity-drone-model/blob/main/README-quest3.md)を参照ください。
 
-なお、ビルド済みのもを以下で公開しています。
+なお、ビルド済みのもを以下で公開しています（最新版をご利用ください）。
 
 https://github.com/toppers/hakoniwa-unity-drone-model/releases
 
-対象ファイル：model-ros.apk
+対象ファイル：model.apk
 
 #### ARアプリのインストール
 
@@ -282,7 +282,99 @@ Unityシーンは、`Scenes/DigitalTwin/Quest3` を使います。
 - https://github.com/toppers/hakoniwa-unity-drone-model/blob/main/README-quest3-drone.md
 - https://www.docswell.com/s/kanetugu2015/K4VVJD-hakoniwa-drone-ar-op
 
-## 実行手順
+
+## 実行手順（自動ツール利用編）
+
+デモ向けに簡単にオペレーション実行したい場合は、以下の手順で実施できます。
+
+### TB3
+
+TB3の電源を起動し、TB3のトピックが出力されるのを待ちます。
+
+```
+ros2 topic list
+```
+
+`tb3_cmd_vel` のトピックが見えたら成功です。
+
+TB3の頭に被せる帽子を外します。
+
+### Linuxマシン
+
+#### Linux 端末A
+
+URGとインフラセンサを起動します。
+
+```bash
+hakoniwa-digital-twin/real/sensors
+```
+
+```
+bash run_nodes.bash
+```
+
+センサが環境認識完了した、TB3の頭に帽子を被せて、`s` ボタンを押下します。
+
+#### Linux 端末B
+
+ROSProxyを起動します。
+
+```
+cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu/workspace
+```
+
+```
+ros2 run hako_ros_proxy hako_ros_proxy_node
+```
+
+#### Linux 端末C
+
+TB3ロボット制御プログラムを起動します。
+
+```
+cd hakoniwa-digital-twin/real/robot
+```
+
+```
+bash run.bash
+```
+
+### QUEST3
+
+箱庭ARアプリを起動します。
+
+箱庭ARブリッジがあるので、独立して起動停止可能です。
+
+### MacPC
+
+```
+cd hakoniwa-digital-twin
+```
+
+```
+bash run.bash
+```
+
+位置調整モードになるので、PS4コントローラでドローンの初期位置を決めます。
+
+初期位置が決まったら、○ボタンを押下してください。
+
+１秒後くらいで、×ボタンを押すと、PS4コントローラでドローンを操作できます。
+
+ドローンを５０cmほど浮上させます。
+
+
+### PS4コントローラ
+
+荷物をロボットの上に置いてください
+
+操縦している際に、位置ずれが発生する場合は、PS4コントローラの箱庭の未サポートボタンを押下して、位置調整からやり直しできます。
+
+
+
+## 実行手順（個別編）
+
+個々の機能を手作業で実行する場合は、以下の手順で実施できます。
 
 0. ARアプリを起動する
 1. 箱庭ドローンシミュレータを起動する
@@ -292,42 +384,8 @@ Unityシーンは、`Scenes/DigitalTwin/Quest3` を使います。
 5. [URGセンサを起動する](real/sensors/drivers/Hokuyo/urg/README.md#ros2ノードを起動する)
 5. [Infra Sensorを起動する](#InfraSensorを起動する)
 6. [ロボット制御プログラムを起動する](#ロボット制御プログラムを起動する)
-7. [バーチャル・ドローンのデモオペレーションを開始する](#バーチャル・ドローンのデモオペレーションを開始する)
-
-なお、「箱庭ドローンシミュレータ」と「ShmProxy」は、以下の方法で起動できます。
-
-Unityエディタで、`Scenes/DigitalTwin/Hakoniwa` を開きます。
-
-ターミナル上で以下のコマンドを実行します。
-
-```
-cd hakoniwa-digital-twin
-```
-
-```
-bash run.bash real
-```
-
-実行すると、以下のメッセージが出力されますので、30秒以内に Unity エディタのシミュレーションを開始してください(STARTボタンをクリック)。
-
-```
-Press ENTER to stop...
-INFO: Zenoh Opening session...
-Robot: TB3RoboAvatar, PduWriter: TB3RoboAvatar_cmd_pos
-channel_id: 0 pdu_size: 72
-INFO: asset(ShmProxy) is registered.
-INFO: Zenoh subscriber: TB3RoboAvatar_cmd_pos
-INFO: subscriber topic name = TB3RoboAvatar_cmd_pos
-INFO: Zenoh publisher: TB3RoboAvatar_baggage_sensor
-INFO: publisher topic name = TB3RoboAvatar_baggage_sensor
-INFO: Zenoh publisher: VirtualSignal_signal_data
-INFO: publisher topic name = VirtualSignal_signal_data
-WAIT START
-```
-
-成功するとこうなります。
-
-![image](images/unity-haoniwa.png)
+7. [箱庭Webサーバーを起動する](#箱庭Webサーバーを起動する)
+7. [箱庭ARブリッジを起動する](#箱庭ARブリッジを起動する)
 
 ### TB3のROSノードを起動する
 
@@ -425,21 +483,18 @@ ros2 run tb3_controller tb3_controller_node --ros-args -p act_mode:=real
 ```
 [INFO] [1720399525.556355826] [tb3_controller_node]: START: tb3_controller_node: real
 ```
-### バーチャル・ドローンのデモオペレーションを開始する
 
-1. ARアプリケーションを起動する
-2. [箱庭のPythonアプリを実行する](#箱庭のPythonアプリを実行する)
+### 箱庭Webサーバーを起動する
 
-#### 箱庭のPythonアプリを実行する
-
-```
-cd hakoniwa-px4sim/drone_api/sample
+```bash
+ python3.12 server/main.py --asset_name WebServer --config_path config/twin-custom.json --delta_time_usec 20000
 ```
 
-```
-python3.12 rc.py ../hakoniwa-unity-drone-model/custom.json 
-```
+### 箱庭ARブリッジを起動する
 
+```bash
+python3.12 asset_lib/main.py --config asset_lib/config/ar_bridge_config.json
+```
 
 ## プログラム構成
 
@@ -451,83 +506,3 @@ python3.12 rc.py ../hakoniwa-unity-drone-model/custom.json
   * バーチャル側のソースコード一式を管理
 * bridge
   * 箱庭ブリッジ（サブモジュールとして管理）
-
-## 番外編
-
-デモ向けに簡単にオペレーション実行したい場合は、以下の手順で実施できます。
-
-### TB3
-
-TB3の電源を起動し、TB3のトピックが出力されるのを待ちます。
-
-```
-ros2 topic list
-```
-
-`tb3_cmd_vel` のトピックが見えたら成功です。
-
-TB3の頭に被せる帽子を外します。
-
-### Linuxマシン
-
-URGとインフラセンサを起動します。
-
-```bash
-hakoniwa-digital-twin/real/sensors
-```
-
-```
-bash run.bash
-```
-
-センサが環境認識完了した、TB3の頭に帽子を被せて、`s` ボタンを押下します。
-
-ROSProxyを起動します。
-
-```
-cd hakoniwa-digital-twin/bridge/third-party/hakoniwa-ros2pdu/workspace
-```
-
-```
-ros2 run hako_ros_proxy hako_ros_proxy_node
-```
-
-### QUEST3
-
-箱庭ARアプリを起動します。
-
-
-### MacPC
-
-```
-cd hakoniwa-digital-twin
-```
-
-```
-bash run.bash
-```
-
-位置調整モードになるので、PS4コントローラでドローンの初期位置を決めます。
-
-初期位置が決まったら、○ボタンを押下してください。
-
-１秒後くらいで、×ボタンを押すと、PS4コントローラでドローンを操作できます。
-
-ドローンを５０cmほど浮上させます。
-
-### Linux
-
-TB3ロボット制御プログラムを起動します。
-
-```
-cd hakoniwa-digital-twin/real/robot
-```
-
-```
-bash run.bash
-```
-
-### PS4コントローラ
-
-荷物をロボットの上に置いてください
-
