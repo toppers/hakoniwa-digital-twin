@@ -98,6 +98,7 @@ function activate_ar_bridge()
     CURR_DIR=`pwd`
     CONFIG_PATH=`pwd`/digital/config/ar/ar_bridge_config.json 
     cd $HAKONIWA_AR_BRIDGE_PATH
+    export RC_CONFIG_PATH=${HAKONIWA_AR_BRIDGE_PATH}/asset_lib/playing/rc_config/xbox-control.json
     ${PYTHON_BIN} asset_lib/main.py --config ${CONFIG_PATH}
     cd $CURR_DIR
 }
